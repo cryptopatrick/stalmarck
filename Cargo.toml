@@ -1,0 +1,27 @@
+[package]
+name = "dilemma"
+version = "0.1.0"
+edition = "2024"
+authors = ["CryptoPatrick <cryptopatrick@gmail.com>"]
+
+###############################################################################
+description = ""A crate implementing Stålmarck’s method for efficiently proving propositional logic formulas and verifying logical validity.""
+documentation = "https://docs.rs/dilemma"
+homepage = "https://github.com/cryptopatrick/dilemma"
+repository = "https://github.com/cryptopatrick/dilemma"
+readme = "README.md"
+keywords = ["<KEYWORD1>", "<KEYWORD2>" ]
+license = "AGPL-3.0-only"
+autotests = false
+
+###############################################################################
+[lib]
+name = "dilemma"
+path = "src/lib.rs"
+
+[[test]]
+name = "tests"
+path = "tests/test.rs"
+
+###############################################################################
+[dependencies]
