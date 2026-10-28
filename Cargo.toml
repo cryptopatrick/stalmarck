@@ -2,6 +2,7 @@
 name = "stalmarck"
 version = "0.1.0"
 edition = "2024"
+rust-version = "1.88"
 authors = ["CryptoPatrick <cryptopatrick@gmail.com>"]
 
 ###############################################################################
@@ -17,14 +18,14 @@ autotests = false
 # Whitelist of files published to crates.io. Anything not listed here
 # (docs/, bend/, _*/ folders, benchmark tooling) is never packaged.
 include = [
-    "src/**/*",
-    "tests/**/*",
-    "examples/**/*",
-    "Cargo.toml",
-    "README.md",
-    "LICENSE",
-    "COPYING",
-    "CHANGELOG.md",
+    "/src/**/*",
+    "/tests/**/*",
+    "/examples/**/*",
+    "/Cargo.toml",
+    "/README.md",
+    "/LICENSE",
+    "/COPYING",
+    "/CHANGELOG.md",
 ]
 
 ###############################################################################
