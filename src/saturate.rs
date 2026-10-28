@@ -2,9 +2,9 @@
 //! canonical Track A order.
 
 use std::collections::VecDeque;
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
-use crate::relation::{Relation, Union};
+use crate::relation::{Checkpoint, Relation, Union};
 use crate::rules::local_closure;
 use crate::triples::{Lit, Triple};
 
@@ -48,8 +48,28 @@ pub(crate) struct Budget {
     pub deadline: Option<Instant>,
 }
 
+/// What the rollback dilemma remembers about its first branch.
+struct FirstBranch {
+    /// `(node, root, parity)` for every node whose class changed, by node.
+    snapshot: Vec<(u32, u32, u8)>,
+    /// The branch's links, to rebuild it if the second branch fails.
+    links: Vec<(u32, u32, u8)>,
+}
+
+/// How a dilemma keeps its parent state while it explores the branches
+/// (PRD §10, ADR-0004).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum BranchState {
+    /// One mutable state with an undo trail (the Track A baseline).
+    #[default]
+    Rollback,
+    /// A copy of the state per branch.
+    Clone,
+}
+
 pub(crate) struct Engine<'t> {
     triples: &'t [Triple],
+    branch_state: BranchState,
     occurrences: Vec<Vec<u32>>,
     queue: VecDeque<u32>,
     queued: Vec<bool>,
@@ -58,6 +78,7 @@ pub(crate) struct Engine<'t> {
     derived: Vec<(Lit, Lit)>,
     budget: Budget,
     pub stats: Stats,
+    pub merge_time: Duration,
 }
 
 impl<'t> Engine<'t> {
@@ -65,6 +86,7 @@ impl<'t> Engine<'t> {
         node_count: u32,
         triples: &'t [Triple],
         budget: Budget,
+        branch_state: BranchState,
     ) -> Self {
         let mut occurrences = vec![Vec::new(); node_count as usize];
         for (i, t) in triples.iter().enumerate() {
@@ -78,6 +100,7 @@ impl<'t> Engine<'t> {
         }
         Engine {
             triples,
+            branch_state,
             occurrences,
             queue: VecDeque::new(),
             queued: vec![false; triples.len()],
@@ -86,6 +109,7 @@ impl<'t> Engine<'t> {
             derived: Vec::new(),
             budget,
             stats: Stats::default(),
+            merge_time: Duration::ZERO,
         }
     }
 
@@ -206,11 +230,13 @@ impl<'t> Engine<'t> {
                     return Err(Limit::Branches);
                 }
                 self.stats.dilemma_branches += 1;
-                let merged = self.dilemma(rel, v, k - 1)?;
-                if merged.canonical() != rel.canonical() {
+                let productive = match self.branch_state {
+                    BranchState::Rollback => self.dilemma(rel, v, k - 1)?,
+                    BranchState::Clone => self.dilemma_clone(rel, v, k - 1)?,
+                };
+                if productive {
                     self.stats.dilemma_productive += 1;
                     changed = true;
-                    *rel = merged;
                 }
             }
             if !changed || rel.is_contradiction() {
@@ -219,19 +245,128 @@ impl<'t> Engine<'t> {
         }
     }
 
-    /// `sat_j(R(v ≡ ⊥)) ⊓ sat_j(R(v ≡ ⊤))` (SPEC-M1). The merged relation
-    /// is already `sat_j`-closed (SPEC-M3).
+    /// Saturates `rel(v ≡ c)` to depth `j`. On a resource limit the
+    /// branch is rolled back first, so `rel` stays sound.
+    fn branch(
+        &mut self,
+        rel: &mut Relation,
+        cp: Checkpoint,
+        v: u32,
+        c: Lit,
+        j: u32,
+    ) -> Result<(), Limit> {
+        self.assert_eq(rel, Lit::new(v, false), c);
+        self.saturate(rel, j).inspect_err(|_| rel.rollback(cp))
+    }
+
+    /// `sat_j(R(v ≡ ⊥)) ⊓ sat_j(R(v ≡ ⊤))` (SPEC-M1) on one mutable state
+    /// with rollback (ADR-0004). The meet is computed only over nodes whose
+    /// class changed in both branches (ADR-0007, option 3). Installing it
+    /// needs no propagation (SPEC-M3). Returns whether `rel` grew.
     fn dilemma(
         &mut self,
-        rel: &Relation,
+        rel: &mut Relation,
         v: u32,
         j: u32,
-    ) -> Result<Relation, Limit> {
+    ) -> Result<bool, Limit> {
+        let cp = rel.checkpoint();
+        self.branch(rel, cp, v, Lit::FALSE, j)?;
+        let first = if rel.is_contradiction() {
+            None
+        } else {
+            // (node, root, parity) for every changed node, by node.
+            let snapshot: Vec<(u32, u32, u8)> = rel
+                .nodes_changed_since(cp)
+                .into_iter()
+                .map(|u| {
+                    let (r, p) = rel.find(u);
+                    (u, r, p)
+                })
+                .collect();
+            Some(FirstBranch { snapshot, links: rel.links_since(cp) })
+        };
+        rel.rollback(cp);
+        self.branch(rel, cp, v, Lit::TRUE, j)?;
+        let start = Instant::now();
+        let grew = self.merge(rel, cp, first);
+        self.merge_time += start.elapsed();
+        Ok(grew)
+    }
+
+    /// Installs `R₁ ⊓ R₂` where `rel` holds R₂ and `first` describes R₁.
+    fn merge(
+        &mut self,
+        rel: &mut Relation,
+        cp: Checkpoint,
+        first: Option<FirstBranch>,
+    ) -> bool {
+        let Some(FirstBranch { snapshot, links }) = first else {
+            // ⊥⊥ ⊓ R₂ = R₂: keep the second branch as it is.
+            return rel.changed_since(cp);
+        };
+        if rel.is_contradiction() {
+            // R₁ ⊓ ⊥⊥ = R₁: rebuild the first branch from its links.
+            rel.rollback(cp);
+            for (c, r, p) in links {
+                rel.union(
+                    Lit::new(c, false),
+                    Lit::new(r, p == 1),
+                    &mut self.scan,
+                );
+            }
+            return rel.changed_since(cp);
+        }
+        // Nodes changed in both branches (a merge-join of two sorted
+        // lists), keyed by SPEC-R6 and grouped by sorting.
+        let mut keyed: Vec<(u32, u32, u8, u32, u8)> = Vec::new();
+        let mut it = snapshot.iter().peekable();
+        for u in rel.nodes_changed_since(cp) {
+            while it.next_if(|&&(w, _, _)| w < u).is_some() {}
+            if let Some(&&(w, r1, p1)) = it.peek()
+                && w == u
+            {
+                let (r2, p2) = rel.find(u);
+                keyed.push((r1, r2, p1 ^ p2, u, p1));
+            }
+        }
+        keyed.sort_unstable();
+        let mut unions = Vec::new();
+        for group in keyed.chunk_by(|a, b| (a.0, a.1, a.2) == (b.0, b.1, b.2))
+        {
+            let (_, _, _, w, pw) = group[0];
+            for &(_, _, _, u, p1) in &group[1..] {
+                unions.push((w, u, pw ^ p1));
+            }
+        }
+        rel.rollback(cp);
+        let mut grew = false;
+        for (w, u, p) in unions {
+            let lw = Lit::new(w, false);
+            let r = rel.union(lw, Lit::new(u, p == 1), &mut self.scan);
+            debug_assert_ne!(r, Union::Contradiction);
+            grew |= r == Union::Merged;
+        }
+        grew
+    }
+
+    /// The same as [`Engine::dilemma`], with each branch on its own copy of
+    /// the state (Strategy B of PRD §10).
+    fn dilemma_clone(
+        &mut self,
+        rel: &mut Relation,
+        v: u32,
+        j: u32,
+    ) -> Result<bool, Limit> {
         let mut branches = [rel.clone(), rel.clone()];
         for (r, c) in branches.iter_mut().zip([Lit::FALSE, Lit::TRUE]) {
             self.assert_eq(r, Lit::new(v, false), c);
             self.saturate(r, j)?;
         }
-        Ok(Relation::meet(&branches[0], &branches[1]))
+        let start = Instant::now();
+        let merged = Relation::meet(&branches[0], &branches[1]);
+        let grew = merged.canonical() != rel.canonical();
+        *rel = merged;
+        self.merge_time += start.elapsed();
+        Ok(grew)
     }
 }

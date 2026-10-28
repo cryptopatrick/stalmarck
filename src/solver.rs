@@ -6,7 +6,7 @@ use std::time::{Duration, Instant};
 
 use crate::formula::Formula;
 use crate::relation::{CanonicalRelation, Relation};
-use crate::saturate::{Budget, Engine, Limit, Stats};
+use crate::saturate::{BranchState, Budget, Engine, Limit, Stats};
 use crate::triples::Triples;
 
 /// Solver configuration.
@@ -21,6 +21,9 @@ pub struct Config {
     pub max_branches: Option<u64>,
     /// Stop after this much wall-clock time.
     pub timeout: Option<Duration>,
+    /// How Dilemma branches keep the parent state. Both strategies give the
+    /// same results; they differ in time and memory.
+    pub branch_state: BranchState,
 }
 
 impl Default for Config {
@@ -30,6 +33,7 @@ impl Default for Config {
             sharing: true,
             max_branches: None,
             timeout: None,
+            branch_state: BranchState::Rollback,
         }
     }
 }
@@ -101,6 +105,19 @@ pub struct Report<R> {
     /// Canonical form of the final formula relation (SPEC-R4), used for
     /// differential testing.
     pub relation: CanonicalRelation,
+    /// Where the time went.
+    pub timing: Timing,
+}
+
+/// Wall-clock time spent in the solver (ADR-0008 boundaries).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct Timing {
+    /// Building indexes and the initial relation.
+    pub init: Duration,
+    /// Saturation to `max_depth`, including `merge`.
+    pub solve: Duration,
+    /// Computing and installing Dilemma merges.
+    pub merge: Duration,
 }
 
 enum Raw {
@@ -155,25 +172,25 @@ impl Solver {
     /// Decides satisfiability of an already decomposed formula. The
     /// `sharing` option is ignored.
     pub fn check_sat_triples(&self, triples: &Triples) -> Report<SatResult> {
-        let (raw, stats, relation) = self.run(triples, true);
+        let (raw, stats, relation, timing) = self.run(triples, true);
         let result = match raw {
             Raw::Refuted => SatResult::Unsat,
             Raw::Model(m) => SatResult::Sat(m),
             Raw::Unknown(u) => SatResult::Unknown(u),
         };
-        Report { result, stats, relation }
+        Report { result, stats, relation, timing }
     }
 
     /// Decides validity of an already decomposed formula. The `sharing`
     /// option is ignored.
     pub fn prove_triples(&self, triples: &Triples) -> Report<ProofResult> {
-        let (raw, stats, relation) = self.run(triples, false);
+        let (raw, stats, relation, timing) = self.run(triples, false);
         let result = match raw {
             Raw::Refuted => ProofResult::Valid,
             Raw::Model(m) => ProofResult::Invalid(m),
             Raw::Unknown(u) => ProofResult::Unknown(u),
         };
-        Report { result, stats, relation }
+        Report { result, stats, relation, timing }
     }
 
     /// Assumes `root ≡ root_value` and saturates to `max_depth`
@@ -182,16 +199,27 @@ impl Solver {
         &self,
         triples: &Triples,
         root_value: bool,
-    ) -> (Raw, Stats, CanonicalRelation) {
+    ) -> (Raw, Stats, CanonicalRelation, Timing) {
+        let t0 = Instant::now();
         let budget = Budget {
             max_branches: self.config.max_branches,
             deadline: self.config.timeout.map(|t| Instant::now() + t),
         };
-        let mut engine =
-            Engine::new(triples.node_count(), triples.triples(), budget);
+        let mut engine = Engine::new(
+            triples.node_count(),
+            triples.triples(),
+            budget,
+            self.config.branch_state,
+        );
         let mut rel = Relation::new(triples.node_count());
         engine.start(&mut rel, triples.root(), root_value);
+        let t1 = Instant::now();
         let limit = engine.saturate(&mut rel, self.config.max_depth).err();
+        let timing = Timing {
+            init: t1 - t0,
+            solve: t1.elapsed(),
+            merge: engine.merge_time,
+        };
 
         let raw = if rel.is_contradiction() {
             Raw::Refuted
@@ -204,7 +232,7 @@ impl Solver {
                 None => Unknown::DepthExhausted,
             })
         };
-        (raw, engine.stats, rel.canonical())
+        (raw, engine.stats, rel.canonical(), timing)
     }
 }
 

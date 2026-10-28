@@ -48,8 +48,8 @@ pub use cnf::Cnf;
 pub use formula::Formula;
 pub use parse::ParseError;
 pub use relation::CanonicalRelation;
-pub use saturate::Stats;
+pub use saturate::{BranchState, Stats};
 pub use solver::{
-    Config, Model, ProofResult, Report, SatResult, Solver, Unknown,
+    Config, Model, ProofResult, Report, SatResult, Solver, Timing, Unknown,
 };
 pub use triples::{Lit, Triple, TripleKind, Triples};

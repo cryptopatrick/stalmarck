@@ -45,6 +45,10 @@ path = "tests/formats.rs"
 name = "vectors"
 path = "tests/vectors.rs"
 
+[[test]]
+name = "cli"
+path = "tests/cli.rs"
+
 [[example]]
 name = "basic"
 path = "examples/basic.rs"
@@ -57,4 +61,5 @@ path = "examples/gen_vectors.rs"
 [dependencies]
 
 [dev-dependencies]
+serde_json = "1.0.154"
 sha2 = "0.11.1"

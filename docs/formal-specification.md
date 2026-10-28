@@ -333,7 +333,7 @@ Order changes only intermediate states and counters, never `sat₀(R)`
 | `triples_processed` | pops of the worklist |
 | `deductions_attempted` | equivalences in `D` |
 | `deductions_successful` | equivalences in `D` that changed R |
-| `merges` | class unions, including unions with ⊤ |
+| `merges` | class unions made during saturation, including unions with ⊤ and dilemma assumptions. Unions that install a dilemma merge, or rebuild a branch, are not counted, because how they happen depends on the implementation. |
 | `redundant` | `deductions_attempted − deductions_successful` |
 | `worklist_insertions` | pushes |
 | `worklist_removals` | pops |

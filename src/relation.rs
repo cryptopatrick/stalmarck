@@ -46,7 +46,8 @@ pub(crate) enum Union {
 }
 
 /// Union by size without path compression, plus a circular member list per
-/// class (needed for the affected-triple scan, SPEC-Z3).
+/// class (needed for the affected-triple scan, SPEC-Z3), and an undo trail
+/// for branch rollback (ADR-0004).
 #[derive(Clone, Debug)]
 pub(crate) struct Relation {
     parent: Vec<u32>,
@@ -54,6 +55,16 @@ pub(crate) struct Relation {
     size: Vec<u32>,
     next: Vec<u32>,
     min: Vec<u32>,
+    contradiction: bool,
+    /// One entry per merge: the linked child root and the previous `min`
+    /// of the root it was linked under.
+    trail: Vec<(u32, u32)>,
+}
+
+/// A point to roll back to.
+#[derive(Clone, Copy, Debug)]
+pub(crate) struct Checkpoint {
+    trail_len: usize,
     contradiction: bool,
 }
 
@@ -68,6 +79,7 @@ impl Relation {
             next: ids.clone(),
             min: ids,
             contradiction: false,
+            trail: Vec::new(),
         }
     }
 
@@ -153,12 +165,75 @@ impl Relation {
                 std::cmp::Ordering::Equal => (rb, ra),
             };
         let (c, r) = (child as usize, root as usize);
+        self.trail.push((child, self.min[r]));
         self.parent[c] = root;
         self.parity[c] = pa ^ pb ^ p;
         self.size[r] += self.size[c];
         self.min[r] = self.min[r].min(self.min[c]);
         self.next.swap(c, r);
         Union::Merged
+    }
+
+    pub fn checkpoint(&self) -> Checkpoint {
+        Checkpoint {
+            trail_len: self.trail.len(),
+            contradiction: self.contradiction,
+        }
+    }
+
+    /// Undoes every merge made since `cp`, newest first.
+    pub fn rollback(&mut self, cp: Checkpoint) {
+        while self.trail.len() > cp.trail_len {
+            let (child, old_min) = self.trail.pop().unwrap();
+            let c = child as usize;
+            let r = self.parent[c] as usize;
+            self.next.swap(c, r);
+            self.size[r] -= self.size[c];
+            self.min[r] = old_min;
+            self.parent[c] = child;
+            self.parity[c] = 0;
+        }
+        self.contradiction = cp.contradiction;
+    }
+
+    /// Whether anything was merged since `cp`.
+    pub fn changed_since(&self, cp: Checkpoint) -> bool {
+        self.trail.len() > cp.trail_len
+            || self.contradiction != cp.contradiction
+    }
+
+    /// The links made since `cp`, as `(child, root, parity)`. Asserting
+    /// them again on the state at `cp` rebuilds the current relation.
+    pub fn links_since(&self, cp: Checkpoint) -> Vec<(u32, u32, u8)> {
+        self.trail[cp.trail_len..]
+            .iter()
+            .map(|&(c, _)| {
+                (c, self.parent[c as usize], self.parity[c as usize])
+            })
+            .collect()
+    }
+
+    /// Every node whose class changed since `cp`, ascending.
+    pub fn nodes_changed_since(&self, cp: Checkpoint) -> Vec<u32> {
+        let mut roots: Vec<u32> = self.trail[cp.trail_len..]
+            .iter()
+            .map(|&(c, _)| self.find(c).0)
+            .collect();
+        roots.sort_unstable();
+        roots.dedup();
+        let mut out = Vec::new();
+        for r in roots {
+            let mut v = r;
+            loop {
+                out.push(v);
+                v = self.next[v as usize];
+                if v == r {
+                    break;
+                }
+            }
+        }
+        out.sort_unstable();
+        out
     }
 
     pub fn canonical(&self) -> CanonicalRelation {

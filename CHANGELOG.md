@@ -8,6 +8,16 @@
  - `generate`: seeded instance generators (random formulas, random k-CNF,
    pigeonhole, parity, implication chains).
  - `oracle`: truth-table satisfiability oracles.
+ - The `stalmarck` command-line tool reads `.prop`, `.cnf` or `.tri` input
+   and prints a human-readable line or a `result-v1` JSON record
+   (`--json`). Exit status: 10 SAT/INVALID, 20 UNSAT/VALID, 0 unknown.
+ - Dilemma branches now use a rollback trail by default (ADR-0004), with a
+   delta merge. `Config::branch_state` selects `BranchState::Clone`
+   instead; both give identical results.
+ - `Report::timing` gives the init, solve and merge times. *Breaking*:
+   `Report` and `Config` have new public fields.
+ - A resource limit hit inside a Dilemma branch now always leaves the
+   reported relation sound.
  - Parsing, printing, evaluation, decomposition and dropping no longer
    recurse, so deeply nested formulas (tested at 100 000 levels) cannot
    overflow the stack. *Note*: `Formula` now implements `Drop`, so its

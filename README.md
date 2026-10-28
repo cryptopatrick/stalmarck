@@ -72,12 +72,23 @@ match solver.check_sat(&(a & !b)).result {
 Run `cargo run --example basic` for a small demo that prints solver
 counters.
 
+### Command line
+
+```text
+$ cargo install stalmarck
+$ echo '!((a & b) | (a & c) -> a & (b | c))' | stalmarck --format prop -
+s UNSAT
+c depth=2 branches=1 merges=12 solve=0.007ms
+$ stalmarck --json --relation -k 3 problem.cnf     # result-v1 JSON record
+```
+
+The exit status is 10 for SAT/INVALID, 20 for UNSAT/VALID and 0 for
+unknown. See `stalmarck --help` for all options.
+
 ## Status
 
 `0.1` is the sequential, pure-Rust reference implementation. Planned:
 
-- a CLI with JSON output;
-- a rollback-trail branch state;
 - optional parallel branch exploration;
 - a Rust + Scryer Prolog variant behind the `scryer` feature.
 

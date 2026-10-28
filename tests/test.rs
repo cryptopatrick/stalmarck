@@ -230,3 +230,62 @@ fn sharing_toggle_preserves_definite_answers() {
         }
     }
 }
+
+#[test]
+fn rollback_and_clone_strategies_agree() {
+    use stalmarck::{BranchState, generate};
+    for seed in 0..400 {
+        let f = generate::random_formula(seed, 2 + seed as u32 % 5, 6);
+        // Depth 3 is slow in debug builds, so run it on every tenth seed.
+        let max_k = if seed % 10 == 0 { 3 } else { 2 };
+        for k in 0..=max_k {
+            let run = |branch_state| {
+                Solver::new(Config {
+                    max_depth: k,
+                    branch_state,
+                    ..Config::default()
+                })
+                .check_sat(&f)
+            };
+            let (a, b) = (run(BranchState::Rollback), run(BranchState::Clone));
+            assert_eq!(a.result, b.result, "{f} k={k}");
+            assert_eq!(a.relation, b.relation, "{f} k={k}");
+            assert_eq!(a.stats, b.stats, "{f} k={k}");
+        }
+    }
+}
+
+#[test]
+fn limits_leave_a_sound_relation() {
+    // A limit hit inside a branch must not leak branch assumptions.
+    use stalmarck::generate;
+    for seed in 0..200 {
+        let f = generate::random_formula(seed, 4, 6);
+        let models = models(&f);
+        for max in 0..6 {
+            let r = Solver::new(Config {
+                max_depth: 3,
+                max_branches: Some(max),
+                ..Config::default()
+            })
+            .check_sat(&f);
+            if let CanonicalRelation::Classes(classes) = &r.relation {
+                let t = Triples::from_formula(&f, true);
+                for m in &models {
+                    let get =
+                        |x: &str| m.iter().find(|(y, _)| y == x).unwrap().1;
+                    let nodes = t.evaluate(get);
+                    for (v, &(min, neg)) in classes.iter().enumerate() {
+                        assert_eq!(
+                            nodes[v],
+                            nodes[min as usize] != neg,
+                            "{f}"
+                        );
+                    }
+                }
+            } else {
+                assert!(models.is_empty(), "{f}");
+            }
+        }
+    }
+}
