@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - run: cargo fmt --all --check
+      - run: cargo clippy --all-targets -- -D warnings
+      - run: cargo test --all-targets
+
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      # Fail if the crates.io package would contain Bend code or any
+      # private underscore-prefixed folder (_dev, _theory, _wb, ...).
+      - name: Check packaged file list
+        run: |
+          cargo package --list --allow-dirty | tee package-files.txt
+          if grep -E '(^|/)(_[^/]*|bend)/|\.bend$' package-files.txt; then
+            echo "::error::Forbidden files in crates.io package (listed above)"
+            exit 1
+          fi

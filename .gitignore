@@ -3,6 +3,10 @@ target/
 _docs-vibe/
 _wb/
 _dev/
+_theory/
+_bench/
+_bend/
+bend/
 
 # Files
 .DS_Store

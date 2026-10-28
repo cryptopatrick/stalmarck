@@ -1,6 +1,6 @@
-# Contributing to dilemma
-First off, thank you for considering contributing to dilemma. 
-It's people like you that make dilemma great!
+# Contributing to stalmarck
+First off, thank you for considering contributing to stalmarck. 
+It's people like you that make stalmarck great!
 
 
 ## Getting Started
@@ -9,8 +9,8 @@ It's people like you that make dilemma great!
 Start by forking the repository and then clone your fork.
 
 ```bash
-git clone https://github.com/cryptopatrick/dilemma.git
-cd dilemma
+git clone https://github.com/cryptopatrick/stalmarck.git
+cd stalmarck
 ```
 
 ### 2. Install Rust
@@ -27,7 +27,7 @@ just install-all
 
 ### 3b. Running and Testing
 
-To run dilemma, piping the output into [bunyan](https://github.com/LukeMathWalker/bunyan) to format outputted the structured logs:
+To run stalmarck, piping the output into [bunyan](https://github.com/LukeMathWalker/bunyan) to format outputted the structured logs:
 
 ```bash
 cargo run | bunyan
@@ -61,14 +61,14 @@ Please adhere to the following guidelines:
 git push origin YOUR_USERNAME/your-new-feature
 ```
 
-2. [Submit a pull request](https://github.com/cryptopatrick/dilemma/pulls) to the original repository.
+2. [Submit a pull request](https://github.com/cryptopatrick/stalmarck/pulls) to the original repository.
 
 3. Please include a clear and descriptive title and a detailed explanation of your changes in the pull request description.
 
 4. Link any relevant issues in your pull request description.
 
 ## Reporting Issues
-Please use the [issue tracker](https://github.com/cryptopatrick/dilemma/issues) to report any bugs or request new features.
+Please use the [issue tracker](https://github.com/cryptopatrick/stalmarck/issues) to report any bugs or request new features.
 
 ## Licensing
 By contributing, you agree that your contributions will be licensed under the same license as the original project, AGPL-3.0-only.
@@ -77,4 +77,4 @@ By contributing, you agree that your contributions will be licensed under the sa
 Feel free to reach out to the maintainers or open an issue. 
 Always happy to help!
 
-Thank you for contributing to dilemma!
+Thank you for contributing to stalmarck!

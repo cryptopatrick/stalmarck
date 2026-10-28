@@ -1,22 +1,35 @@
 [package]
-name = "dilemma"
+name = "stalmarck"
 version = "0.1.0"
 edition = "2024"
 authors = ["CryptoPatrick <cryptopatrick@gmail.com>"]
 
 ###############################################################################
-description = ""A crate implementing Stålmarck’s method for efficiently proving propositional logic formulas and verifying logical validity.""
-documentation = "https://docs.rs/dilemma"
-homepage = "https://github.com/cryptopatrick/dilemma"
-repository = "https://github.com/cryptopatrick/dilemma"
+description = "A crate implementing Stålmarck's method for efficiently proving propositional logic formulas and verifying logical validity."
+documentation = "https://docs.rs/stalmarck"
+homepage = "https://github.com/cryptopatrick/stalmarck"
+repository = "https://github.com/cryptopatrick/stalmarck"
 readme = "README.md"
-keywords = ["<KEYWORD1>", "<KEYWORD2>" ]
+keywords = ["stalmarck", "sat", "logic", "theorem-proving", "propositional"]
+categories = ["algorithms", "mathematics"]
 license = "AGPL-3.0-only"
 autotests = false
+# Whitelist of files published to crates.io. Anything not listed here
+# (docs/, bend/, _*/ folders, benchmark tooling) is never packaged.
+include = [
+    "src/**/*",
+    "tests/**/*",
+    "examples/**/*",
+    "Cargo.toml",
+    "README.md",
+    "LICENSE",
+    "COPYING",
+    "CHANGELOG.md",
+]
 
 ###############################################################################
 [lib]
-name = "dilemma"
+name = "stalmarck"
 path = "src/lib.rs"
 
 [[test]]

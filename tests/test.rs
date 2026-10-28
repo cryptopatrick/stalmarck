@@ -1,2 +1,2 @@
-extern crate dilemma;
-use dilemma::*;
+#[test]
+fn crate_links() {}

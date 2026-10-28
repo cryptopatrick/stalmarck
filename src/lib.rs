@@ -1,5 +1,3 @@
-//! Crate description.
-
-fn hello() {
-    println!("From lib.rs");
-}
+//! Stålmarck's proof procedure for propositional logic.
+//!
+//! The crate is under construction; see `docs/` for the specification.

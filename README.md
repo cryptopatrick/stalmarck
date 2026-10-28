@@ -1,10 +1,10 @@
-# dilemma
+# stalmarck
 
 **"A crate implementing Stålmarck’s method for efficiently proving propositional logic formulas and verifying logical validity."**
 
-[![Crates.io](https://img.shields.io/crates/v/dilemma.svg)](https://crates.io/crates/dilemma)
-[![Documentation](https://docs.rs/dilemma/badge.svg)](https://docs.rs/dilemma)
-[![License](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](https://github.com/cryptopatrick/dilemma)
+[![Crates.io](https://img.shields.io/crates/v/stalmarck.svg)](https://crates.io/crates/stalmarck)
+[![Documentation](https://docs.rs/stalmarck/badge.svg)](https://docs.rs/stalmarck)
+[![License](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](https://github.com/cryptopatrick/stalmarck)
 
 ## Overview
 
