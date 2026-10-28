@@ -1,4 +1,6 @@
 ## Unreleased
+
+## v0.2.0 - 2026-10-28
  - `.prop` formula syntax: `Formula: FromStr`, with the precedence
    `! & ^ | -> <->` and keyword spellings.
  - DIMACS CNF input (`Cnf`), and `Triples::from_cnf`.

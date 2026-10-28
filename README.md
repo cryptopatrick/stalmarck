@@ -48,7 +48,7 @@ This crate follows the procedure of M. Sheeran and G. Stålmarck,
 
 ```toml
 [dependencies]
-stalmarck = "0.1"
+stalmarck = "0.2"
 ```
 
 ```rust
@@ -87,7 +87,7 @@ unknown. See `stalmarck --help` for all options.
 
 ## Status
 
-`0.1` is the sequential, pure-Rust reference implementation. Planned:
+`0.2` is the sequential, pure-Rust reference implementation. Planned:
 
 - optional parallel branch exploration;
 - a Rust + Scryer Prolog variant behind the `scryer` feature.
