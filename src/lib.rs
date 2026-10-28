@@ -41,6 +41,8 @@ mod parse;
 mod relation;
 mod rules;
 mod saturate;
+#[cfg(feature = "scryer")]
+pub mod scryer;
 mod solver;
 mod triples;
 

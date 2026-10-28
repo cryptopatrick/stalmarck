@@ -174,6 +174,35 @@ impl Relation {
         Union::Merged
     }
 
+    /// Builds a relation from canonical `(node, min, negated)` entries.
+    #[cfg(feature = "scryer")]
+    pub fn from_classes(
+        n: u32,
+        classes: impl IntoIterator<Item = (u32, u32, bool)>,
+    ) -> Relation {
+        let mut r = Relation::new(n);
+        let mut scan = Vec::new();
+        for (v, m, neg) in classes {
+            r.union(Lit::new(m, false), Lit::new(v, neg), &mut scan);
+        }
+        r
+    }
+
+    /// The non-trivial canonical entries `(node, min, negated)`, for nodes
+    /// that are not the smallest of their class.
+    #[cfg(feature = "scryer")]
+    pub fn classes(&self) -> Vec<(u32, u32, bool)> {
+        match self.canonical() {
+            CanonicalRelation::Contradiction => Vec::new(),
+            CanonicalRelation::Classes(c) => c
+                .into_iter()
+                .enumerate()
+                .filter(|&(v, (m, _))| m != v as u32)
+                .map(|(v, (m, neg))| (v as u32, m, neg))
+                .collect(),
+        }
+    }
+
     pub fn checkpoint(&self) -> Checkpoint {
         Checkpoint {
             trail_len: self.trail.len(),

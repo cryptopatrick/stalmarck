@@ -1,6 +1,7 @@
 # ADR-0005: Scryer integration strategy
 
-Status: Proposed. To be confirmed by a Phase 3 spike.
+Status: Accepted. Option 1 was implemented in M3 (`src/scryer/`, feature
+`scryer`). The decisions below hold, with the M3 notes at the end.
 
 ## Context
 PRD §20–§25: Rust owns the infrastructure, and Prolog must do a *meaningful*
@@ -58,3 +59,30 @@ verified API constraints (feasibility report §3.3):
   (P5, P6) must cover branch results directly, not just final answers.
 * Revisit this ADR if a host-callback API appears in a later `scryer-prolog`
   release.
+
+## M3 notes (implementation)
+
+* **Interface:** `stal:branch_entry(State, V, C, J, MaxBranches, Out)`.
+  `State` lists `c(Node, Min, Parity)` for non-trivial nodes. `Out` is
+  `r(Classes, stats(...))`, `contradiction(stats(...))` or
+  `limit(stats(...))`. Rust rebuilds a `Relation` from `Classes` and merges
+  with the existing `Relation::meet`.
+* **Rules:** Prolog evaluates SPEC-S1 directly: it enumerates the
+  assignments of a triple's nodes with `findall`. There is no lookup table.
+* **State:** a persistent union-find over `library(assoc)`. Nested branches
+  share structure. Counters are global (`bb_put/2`), so they add up across
+  nested branches.
+* **Facts:** the triples are appended to the program text, and both are
+  consulted as one module per run. Calls qualified with a second module
+  (`other:p(...)`) misbehaved in 0.10.0.
+* **Result:** verdicts, final relations **and all eight counters** equal pure
+  Rust on random formulas, under branch limits, and on 181 of the 184 shared
+  vectors at k = 1. The other three exceed the test's 200-node cutoff.
+* **Indicative cost (release, one M2, not a benchmark):** machine set-up
+  about 60 ms per run. Boundary conversion is under about 1 ms in total.
+  Prolog execution makes the back end about 10³× slower than pure Rust
+  (e.g. `parity-mismatch-08`, k = 2: 1.6 ms vs about 2 s). The cost is
+  Prolog execution, not the Rust–Prolog boundary.
+* **Limitation:** `timeout` is checked only between top-level branches.
+  `call_with_inference_limit/3` exists in `library(iso_ext)` and is the
+  planned fix.

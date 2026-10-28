@@ -41,6 +41,8 @@ Options:
   --relation               include the canonical final relation
   --id ID                  input id for the JSON record (default: file stem)
   --emit-triples           print the triple file and exit
+  --backend B              rust (default), or scryer when built with the
+                           `scryer` feature
   -h, --help               print this help
   -V, --version            print the version
 
@@ -78,6 +80,7 @@ struct Options {
     relation: bool,
     id: Option<String>,
     emit_triples: bool,
+    scryer: bool,
 }
 
 fn parse_args() -> Result<Options, String> {
@@ -91,6 +94,7 @@ fn parse_args() -> Result<Options, String> {
         relation: false,
         id: None,
         emit_triples: false,
+        scryer: false,
     };
     let mut path = None;
     while let Some(arg) = args.next() {
@@ -150,6 +154,16 @@ fn parse_args() -> Result<Options, String> {
             "--relation" => o.relation = true,
             "--id" => o.id = Some(value("--id")?),
             "--emit-triples" => o.emit_triples = true,
+            "--backend" => match value("--backend")?.as_str() {
+                "rust" => o.scryer = false,
+                "scryer" if cfg!(feature = "scryer") => o.scryer = true,
+                "scryer" => {
+                    return Err("this build has no Scryer back end; \
+                                rebuild with --features scryer"
+                        .into());
+                }
+                b => return Err(format!("--backend: unknown '{b}'")),
+            },
             a if a.starts_with('-') && a != "-" => {
                 return Err(format!("unknown option '{a}'"));
             }
@@ -198,8 +212,43 @@ struct Run {
     report: Option<(Stats, String, stalmarck::Timing)>,
 }
 
+/// The chosen back end's reports.
+enum Backend {
+    Rust(Solver),
+    #[cfg(feature = "scryer")]
+    Scryer(stalmarck::scryer::ScryerSolver),
+}
+
+impl Backend {
+    fn new(o: &Options) -> Backend {
+        #[cfg(feature = "scryer")]
+        if o.scryer {
+            return Backend::Scryer(stalmarck::scryer::ScryerSolver::new(
+                o.config.clone(),
+            ));
+        }
+        Backend::Rust(Solver::new(o.config.clone()))
+    }
+
+    fn prove_triples(&self, t: &Triples) -> Report<ProofResult> {
+        match self {
+            Backend::Rust(s) => s.prove_triples(t),
+            #[cfg(feature = "scryer")]
+            Backend::Scryer(s) => s.prove_triples(t),
+        }
+    }
+
+    fn check_sat_triples(&self, t: &Triples) -> Report<SatResult> {
+        match self {
+            Backend::Rust(s) => s.check_sat_triples(t),
+            #[cfg(feature = "scryer")]
+            Backend::Scryer(s) => s.check_sat_triples(t),
+        }
+    }
+}
+
 fn verdict(o: &Options, triples: &Triples) -> Run {
-    let solver = Solver::new(o.config.clone());
+    let solver = Backend::new(o);
     fn parts<R>(
         r: Report<R>,
     ) -> (R, Option<(Stats, String, stalmarck::Timing)>) {
@@ -310,8 +359,10 @@ fn main() -> ExitCode {
         let mut j = String::from("{\"schema_version\":1,");
         let _ = write!(
             j,
-            "\"implementation\":{{\"name\":\"rust\",\"version\":{},\"git_commit\":null,\"runtime\":null}},",
-            json_string(env!("CARGO_PKG_VERSION"))
+            "\"implementation\":{{\"name\":\"{}\",\"version\":{},\"git_commit\":null,\"runtime\":{}}},",
+            if o.scryer { "rust-scryer" } else { "rust" },
+            json_string(env!("CARGO_PKG_VERSION")),
+            if o.scryer { "\"scryer-prolog 0.10.0\"" } else { "null" }
         );
         let c = &o.config;
         let opt =
@@ -355,13 +406,23 @@ fn main() -> ExitCode {
         j.push_str("},");
         let _ = write!(
             j,
-            "\"timing\":{{\"parse_ms\":{},\"decompose_ms\":{},\"solver_init_ms\":{},\"solve_ms\":{},\"saturation_ms\":null,\"dilemma_ms\":null,\"merge_ms\":{},\"total_ms\":{}}},",
+            "\"timing\":{{\"parse_ms\":{},\"decompose_ms\":{},\"solver_init_ms\":{},\"solve_ms\":{},\"saturation_ms\":null,\"dilemma_ms\":null,\"merge_ms\":{},\"total_ms\":{},\"boundary\":{}}},",
             ms(parse_time),
             decompose_time.map_or("null".to_string(), ms),
             ms(timing.init),
             ms(timing.solve),
             ms(timing.merge),
-            ms(total_time)
+            ms(total_time),
+            if o.scryer {
+                format!(
+                    "{{\"to_prolog_ms\":{},\"prolog_ms\":{},\"from_prolog_ms\":{},\"query_setup_ms\":null}}",
+                    ms(timing.to_prolog),
+                    ms(timing.prolog),
+                    ms(timing.from_prolog)
+                )
+            } else {
+                "null".to_string()
+            }
         );
         j.push_str("\"memory\":{\"peak_rss_bytes\":null},");
         let _ = write!(

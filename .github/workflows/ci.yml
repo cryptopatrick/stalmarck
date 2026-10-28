@@ -25,6 +25,18 @@ jobs:
           cargo run --release --example gen_vectors -- "$RUNNER_TEMP/vectors"
           diff -r -x README.md shared/test-vectors "$RUNNER_TEMP/vectors"
 
+  scryer:
+    # Implementation B: Rust + Scryer Prolog (feature `scryer`), checked
+    # against pure Rust on random formulas and the shared vectors.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - run: cargo clippy --all-targets --features scryer -- -D warnings
+      - run: cargo test --release --features scryer --test scryer
+
   package:
     runs-on: ubuntu-latest
     steps:

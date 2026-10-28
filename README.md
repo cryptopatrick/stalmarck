@@ -85,12 +85,26 @@ $ stalmarck --json --relation -k 3 problem.cnf     # result-v1 JSON record
 The exit status is 10 for SAT/INVALID, 20 for UNSAT/VALID and 0 for
 unknown. See `stalmarck --help` for all options.
 
+## Rust + Scryer Prolog
+
+With the `scryer` feature, `stalmarck::scryer::ScryerSolver` runs every
+Dilemma branch in embedded [Scryer Prolog](https://github.com/mthom/scryer-prolog).
+It gives the same answers, final relations and counters as `Solver`. It
+exists to compare implementation paradigms, not for speed.
+
+```toml
+stalmarck = { version = "0.2", features = ["scryer"] }
+
+# scryer-prolog 0.10.0 trips a Rust safety check in debug builds:
+[profile.dev.package.scryer-prolog]
+debug-assertions = false
+```
+
 ## Status
 
 `0.2` is the sequential, pure-Rust reference implementation. Planned:
 
 - optional parallel branch exploration;
-- a Rust + Scryer Prolog variant behind the `scryer` feature.
 
 The API may change before 1.0.
 

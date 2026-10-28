@@ -49,6 +49,11 @@ path = "tests/vectors.rs"
 name = "cli"
 path = "tests/cli.rs"
 
+[[test]]
+name = "scryer"
+path = "tests/scryer.rs"
+required-features = ["scryer"]
+
 [[example]]
 name = "basic"
 path = "examples/basic.rs"
@@ -57,9 +62,26 @@ path = "examples/basic.rs"
 name = "gen_vectors"
 path = "examples/gen_vectors.rs"
 
+[package.metadata.docs.rs]
+features = ["scryer"]
+
 ###############################################################################
+[features]
+# Implementation B: Dilemma branches executed in embedded Scryer Prolog.
+scryer = ["dep:scryer-prolog"]
+
 [dependencies]
+scryer-prolog = { version = "0.10.0", default-features = false, optional = true }
 
 [dev-dependencies]
 serde_json = "1.0.154"
 sha2 = "0.11.1"
+
+# scryer-prolog 0.10.0 violates a Rust safety precondition
+# (NonNull::new_unchecked on a null pointer) while building a machine. Debug
+# builds check it and abort, so disable those checks for that crate here.
+# Downstream users of the `scryer` feature need the same override
+# (docs/feasibility-report.md §3.3).
+[profile.dev.package.scryer-prolog]
+debug-assertions = false
+opt-level = 2

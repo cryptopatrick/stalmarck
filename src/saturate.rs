@@ -30,6 +30,17 @@ pub struct Stats {
 }
 
 impl Stats {
+    pub(crate) fn add(&mut self, o: &Stats) {
+        self.triples_processed += o.triples_processed;
+        self.deductions_attempted += o.deductions_attempted;
+        self.deductions_successful += o.deductions_successful;
+        self.merges += o.merges;
+        self.worklist_insertions += o.worklist_insertions;
+        self.worklist_removals += o.worklist_removals;
+        self.dilemma_branches += o.dilemma_branches;
+        self.dilemma_productive += o.dilemma_productive;
+    }
+
     /// `deductions_attempted − deductions_successful`.
     pub fn redundant(&self) -> u64 {
         self.deductions_attempted - self.deductions_successful
@@ -46,6 +57,31 @@ pub(crate) enum Limit {
 pub(crate) struct Budget {
     pub max_branches: Option<u64>,
     pub deadline: Option<Instant>,
+}
+
+/// The result of one branch run outside this engine.
+pub(crate) struct BranchOutcome {
+    /// The saturated branch, or `None` if it is contradictory.
+    pub relation: Option<Relation>,
+    /// Work done inside the branch, nested dilemmas included.
+    pub stats: Stats,
+    /// The branch stopped at the branch limit.
+    pub limited: bool,
+}
+
+/// Runs whole Dilemma branches elsewhere (the Scryer back end, ADR-0005).
+/// The engine then drives only the top-level dilemmas and their merges.
+pub(crate) trait ExternalBranches {
+    /// Saturates `parent(v ≡ value)` to `depth`, allowing at most
+    /// `max_branches` nested dilemmas.
+    fn branch(
+        &mut self,
+        parent: &Relation,
+        v: u32,
+        value: bool,
+        depth: u32,
+        max_branches: Option<u64>,
+    ) -> BranchOutcome;
 }
 
 /// What the rollback dilemma remembers about its first branch.
@@ -70,6 +106,7 @@ pub enum BranchState {
 pub(crate) struct Engine<'t> {
     triples: &'t [Triple],
     branch_state: BranchState,
+    external: Option<&'t mut dyn ExternalBranches>,
     occurrences: Vec<Vec<u32>>,
     queue: VecDeque<u32>,
     queued: Vec<bool>,
@@ -101,6 +138,7 @@ impl<'t> Engine<'t> {
         Engine {
             triples,
             branch_state,
+            external: None,
             occurrences,
             queue: VecDeque::new(),
             queued: vec![false; triples.len()],
@@ -111,6 +149,11 @@ impl<'t> Engine<'t> {
             stats: Stats::default(),
             merge_time: Duration::ZERO,
         }
+    }
+
+    /// Sends every dilemma branch to `external`.
+    pub fn set_external(&mut self, external: &'t mut dyn ExternalBranches) {
+        self.external = Some(external);
     }
 
     fn push(&mut self, t: u32) {
@@ -230,9 +273,17 @@ impl<'t> Engine<'t> {
                     return Err(Limit::Branches);
                 }
                 self.stats.dilemma_branches += 1;
-                let productive = match self.branch_state {
-                    BranchState::Rollback => self.dilemma(rel, v, k - 1)?,
-                    BranchState::Clone => self.dilemma_clone(rel, v, k - 1)?,
+                let productive = if self.external.is_some() {
+                    self.dilemma_external(rel, v, k - 1)?
+                } else {
+                    match self.branch_state {
+                        BranchState::Rollback => {
+                            self.dilemma(rel, v, k - 1)?
+                        }
+                        BranchState::Clone => {
+                            self.dilemma_clone(rel, v, k - 1)?
+                        }
+                    }
                 };
                 if productive {
                     self.stats.dilemma_productive += 1;
@@ -347,6 +398,46 @@ impl<'t> Engine<'t> {
             grew |= r == Union::Merged;
         }
         grew
+    }
+
+    /// The same as [`Engine::dilemma`], with both branches run by the
+    /// external executor and merged here.
+    fn dilemma_external(
+        &mut self,
+        rel: &mut Relation,
+        v: u32,
+        j: u32,
+    ) -> Result<bool, Limit> {
+        let mut branches = Vec::with_capacity(2);
+        for value in [false, true] {
+            let max = self
+                .budget
+                .max_branches
+                .map(|m| m.saturating_sub(self.stats.dilemma_branches));
+            let ext = self.external.as_deref_mut().expect("external executor");
+            let out = ext.branch(rel, v, value, j, max);
+            self.stats.add(&out.stats);
+            if out.limited {
+                return Err(Limit::Branches);
+            }
+            branches.push(out.relation);
+        }
+        let start = Instant::now();
+        let r2 = branches.pop().unwrap();
+        let r1 = branches.pop().unwrap();
+        let merged = match (r1, r2) {
+            (None, None) => {
+                let mut r = rel.clone();
+                r.set_contradiction();
+                r
+            }
+            (None, Some(r)) | (Some(r), None) => r,
+            (Some(a), Some(b)) => Relation::meet(&a, &b),
+        };
+        let grew = merged.canonical() != rel.canonical();
+        *rel = merged;
+        self.merge_time += start.elapsed();
+        Ok(grew)
     }
 
     /// The same as [`Engine::dilemma`], with each branch on its own copy of

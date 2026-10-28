@@ -1,4 +1,13 @@
 ## Unreleased
+ - Implementation B, behind the new `scryer` feature:
+   `scryer::ScryerSolver` runs Dilemma branches in embedded Scryer Prolog
+   0.10. Its results, final relations and counters equal `Solver`.
+ - The CLI gains `--backend scryer` when built with the feature. JSON
+   records then report `rust-scryer` and the Rust–Prolog boundary timings.
+ - *Breaking*: `Timing` gains `prolog`, `to_prolog` and `from_prolog`.
+ - *Note*: in debug builds, `scryer-prolog` 0.10.0 needs
+   `[profile.dev.package.scryer-prolog] debug-assertions = false` (see the
+   README).
 
 ## v0.2.0 - 2026-10-28
  - `.prop` formula syntax: `Formula: FromStr`, with the precedence

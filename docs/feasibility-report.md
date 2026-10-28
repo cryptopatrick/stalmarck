@@ -108,10 +108,24 @@ with no default features.
    (for example branch-local saturation) must be written in Prolog.
 6. **No resource-limit API** on `Machine`. Limits must be enforced in Prolog,
    with a step budget threaded through the solver, or with
-   `call_with_inference_limit/3` if it exists. That predicate is
-   *unverified* and must be checked in Phase 3.
+   `call_with_inference_limit/3`. M3 confirmed that this predicate exists
+   in `library(iso_ext)`.
 7. `QueryState::drop` carries an upstream FIXME about iterators that are not
    fully consumed. The solver MUST always drain the iterator.
+8. **Debug builds abort** (found in M3). `MachineBuilder::build()` calls
+   `NonNull::new_unchecked` on a null pointer, inside `Heap::clear`. Rust's
+   debug-mode precondition checks catch it, and a three-line program
+   reproduces it. Release builds run, but the code relies on undefined
+   behaviour. Workaround: `[profile.dev.package.scryer-prolog]
+   debug-assertions = false` in `Cargo.toml`. This should be reported
+   upstream.
+9. **`xor` is not an infix operator** in Scryer. Write `xor(A, B)` inside
+   `is/2`.
+10. **Module quirks:** consulting a module that imports `library(lists)`
+    prints `error(syntax_error(invalid_module_declaration),load/1)`, yet the
+    module loads and works. A source consisting of only a module declaration
+    hung the machine. After a failed load, a later query panicked with an
+    out-of-bounds index inside Scryer.
 
 Feasibility: **feasible, with design constraints.** See ADR-0005.
 

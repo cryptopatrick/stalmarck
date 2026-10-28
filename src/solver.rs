@@ -6,7 +6,9 @@ use std::time::{Duration, Instant};
 
 use crate::formula::Formula;
 use crate::relation::{CanonicalRelation, Relation};
-use crate::saturate::{BranchState, Budget, Engine, Limit, Stats};
+use crate::saturate::{
+    BranchState, Budget, Engine, ExternalBranches, Limit, Stats,
+};
 use crate::triples::Triples;
 
 /// Solver configuration.
@@ -118,9 +120,40 @@ pub struct Timing {
     pub solve: Duration,
     /// Computing and installing Dilemma merges.
     pub merge: Duration,
+    /// Time spent inside Prolog queries (Scryer back end only).
+    pub prolog: Duration,
+    /// Time spent encoding parent states as Prolog queries (Scryer back
+    /// end only).
+    pub to_prolog: Duration,
+    /// Time spent decoding Prolog answers (Scryer back end only).
+    pub from_prolog: Duration,
 }
 
-enum Raw {
+pub(crate) type RawReport = (Raw, Stats, CanonicalRelation, Timing);
+
+pub(crate) fn sat_report(
+    (raw, stats, relation, timing): RawReport,
+) -> Report<SatResult> {
+    let result = match raw {
+        Raw::Refuted => SatResult::Unsat,
+        Raw::Model(m) => SatResult::Sat(m),
+        Raw::Unknown(u) => SatResult::Unknown(u),
+    };
+    Report { result, stats, relation, timing }
+}
+
+pub(crate) fn proof_report(
+    (raw, stats, relation, timing): RawReport,
+) -> Report<ProofResult> {
+    let result = match raw {
+        Raw::Refuted => ProofResult::Valid,
+        Raw::Model(m) => ProofResult::Invalid(m),
+        Raw::Unknown(u) => ProofResult::Unknown(u),
+    };
+    Report { result, stats, relation, timing }
+}
+
+pub(crate) enum Raw {
     Refuted,
     Model(Model),
     Unknown(Unknown),
@@ -172,34 +205,23 @@ impl Solver {
     /// Decides satisfiability of an already decomposed formula. The
     /// `sharing` option is ignored.
     pub fn check_sat_triples(&self, triples: &Triples) -> Report<SatResult> {
-        let (raw, stats, relation, timing) = self.run(triples, true);
-        let result = match raw {
-            Raw::Refuted => SatResult::Unsat,
-            Raw::Model(m) => SatResult::Sat(m),
-            Raw::Unknown(u) => SatResult::Unknown(u),
-        };
-        Report { result, stats, relation, timing }
+        sat_report(self.run(triples, true, None))
     }
 
     /// Decides validity of an already decomposed formula. The `sharing`
     /// option is ignored.
     pub fn prove_triples(&self, triples: &Triples) -> Report<ProofResult> {
-        let (raw, stats, relation, timing) = self.run(triples, false);
-        let result = match raw {
-            Raw::Refuted => ProofResult::Valid,
-            Raw::Model(m) => ProofResult::Invalid(m),
-            Raw::Unknown(u) => ProofResult::Unknown(u),
-        };
-        Report { result, stats, relation, timing }
+        proof_report(self.run(triples, false, None))
     }
 
     /// Assumes `root ≡ root_value` and saturates to `max_depth`
     /// (SPEC-D7, SPEC-C1).
-    fn run(
+    pub(crate) fn run(
         &self,
         triples: &Triples,
         root_value: bool,
-    ) -> (Raw, Stats, CanonicalRelation, Timing) {
+        external: Option<&mut dyn ExternalBranches>,
+    ) -> RawReport {
         let t0 = Instant::now();
         let budget = Budget {
             max_branches: self.config.max_branches,
@@ -211,6 +233,9 @@ impl Solver {
             budget,
             self.config.branch_state,
         );
+        if let Some(external) = external {
+            engine.set_external(external);
+        }
         let mut rel = Relation::new(triples.node_count());
         engine.start(&mut rel, triples.root(), root_value);
         let t1 = Instant::now();
@@ -219,6 +244,7 @@ impl Solver {
             init: t1 - t0,
             solve: t1.elapsed(),
             merge: engine.merge_time,
+            ..Timing::default()
         };
 
         let raw = if rel.is_contradiction() {
