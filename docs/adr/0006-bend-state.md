@@ -1,9 +1,16 @@
 # ADR-0006: Bend state representation
 
-Status: Accepted for **Bend 2** (2.0.39) on 2026-10-28. The spike passed
-(feasibility report §4.2). Note that Bend 2's `Array` is a balanced tree with
-O(log N) access, so option 1 below has a persistent-tree cost profile, not a
-flat-array one.
+Status: Accepted for **Bend 2** (2.0.39). **Revised in M4 (2026-10-29): the
+implementation uses option 2, persistent `Data` trees, not option 1.**
+
+Why the M4 revision: Bend 2's `Array` is itself a balanced tree with
+O(log N) access, so option 1 has no asymptotic advantage. Its affine
+ownership forces every read to thread the array and every branch to
+`Array.clone` the whole state in O(N). A complete binary tree of U32 declared
+as a `Data` type (`Tab`) has the same O(log N) access. It is reusable (`+`,
+reference-counted), so both Dilemma branches start from the parent at no cost
+and share structure (PRD §10 Strategy C). This also makes the code much
+simpler. The parallel and GPU variants keep this representation.
 
 ## Context
 Bend has no conventional shared mutable structures. The main Bend research
@@ -43,3 +50,32 @@ branches run sequentially.
 ## Consequences
 * All Bend sources live in `bend/`, which is git-ignored (amendment A2).
 * The Bend implementation reads the shared triple file, so it needs no parser.
+
+## M4 notes (implementation, 2026-10-29)
+
+* `bend/stalmarck.bend`, which is git-ignored, reads the shared `.tri` files
+  and runs the Track A order. It has three modes: `seq`; `par`, where both
+  branches of every dilemma run as one parallel call; and `gpu`, where
+  saturation and every parallel call inside it run on the M2's Metal GPU.
+* **Differential result:** verdicts, canonical final relations **and all
+  eight counters** equal the Rust reference on all 184 shared vectors at
+  k = 0, 1 and 2, in both `seq` and `par` mode (552 / 552 runs each). In
+  parallel mode the counters are summed across branches, minus the parent's
+  counts, and the totals match exactly. This confirms SPEC-K2 (order
+  independence) in practice.
+* **Indicative timings (one M2, median of 3, wall clock including process
+  start; not a benchmark):**
+
+  | Vector | k | Rust | Bend seq | Bend par 4 threads | Bend par 8 threads |
+  |--------|---|------|----------|--------------------|--------------------|
+  | `pigeonhole-4` | 3 | 22 ms | 934 ms | 683 ms | 702 ms |
+  | `pigeonhole-5` | 2 | 54 ms | 2 867 ms | 2 052 ms | 2 206 ms |
+  | `parity-mismatch-32` | 2 | 33 ms | 1 843 ms | 1 228 ms | 2 056 ms |
+
+  Sequential Bend is about 30–60× slower than Rust on these vectors, and
+  parallel branches give about 1.4–1.5× on 4 threads. 8 threads are often
+  no better or worse; E-cores and branch imbalance are the likely causes.
+* **Metal GPU:** agrees with Rust on all 254 runs checked (127 vectors with
+  at most 40 nodes, at k = 0 and 1). Correct, but 20–100× *slower* than one CPU thread on these
+  irregular workloads (e.g. `random-001`, k = 2: 0.14 s vs 12.8 s). This
+  matches upstream's guidance that divergent work stays faster on the CPU.
