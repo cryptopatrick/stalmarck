@@ -23,7 +23,7 @@ jobs:
       - name: Regenerate test vectors and compare
         run: |
           cargo run --release --example gen_vectors -- "$RUNNER_TEMP/vectors"
-          diff -r shared/test-vectors "$RUNNER_TEMP/vectors"
+          diff -r -x README.md shared/test-vectors "$RUNNER_TEMP/vectors"
 
   package:
     runs-on: ubuntu-latest
