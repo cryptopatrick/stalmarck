@@ -170,9 +170,8 @@ is git-ignored.
 | Maturity | Upstream: "BEND IS YOUNG. EXPECT BUGS." The compiler is AI-written and not fully audited. Differential testing (PRD §35) is the safeguard. |
 
 **Impact on amendment A5.** GPU execution is available on this machine through
-Metal. A5 (defer GPU until a cloud CUDA GPU is rented) can be narrowed to
-"CUDA results deferred; Metal results on the M2 are in scope". This PRD change
-needs the project owner's approval.
+Metal. The project owner approved narrowing A5 on 2026-10-28: Metal results
+on the M2 are in scope, and only CUDA results stay deferred.
 
 ### 4.3 Decision
 

@@ -1,4 +1,6 @@
 ## Unreleased
+
+## v0.3.0 - 2026-10-28
  - Implementation B, behind the new `scryer` feature:
    `scryer::ScryerSolver` runs Dilemma branches in embedded Scryer Prolog
    0.10. Its results, final relations and counters equal `Solver`.

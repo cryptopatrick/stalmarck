@@ -48,7 +48,7 @@ This crate follows the procedure of M. Sheeran and G. Stålmarck,
 
 ```toml
 [dependencies]
-stalmarck = "0.2"
+stalmarck = "0.3"
 ```
 
 ```rust
@@ -93,7 +93,7 @@ It gives the same answers, final relations and counters as `Solver`. It
 exists to compare implementation paradigms, not for speed.
 
 ```toml
-stalmarck = { version = "0.2", features = ["scryer"] }
+stalmarck = { version = "0.3", features = ["scryer"] }
 
 # scryer-prolog 0.10.0 trips a Rust safety check in debug builds:
 [profile.dev.package.scryer-prolog]
@@ -102,7 +102,7 @@ debug-assertions = false
 
 ## Status
 
-`0.2` is the sequential, pure-Rust reference implementation. Planned:
+`0.3` contains the sequential pure-Rust reference implementation and the Rust + Scryer variant. Planned:
 
 - optional parallel branch exploration;
 
