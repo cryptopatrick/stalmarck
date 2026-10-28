@@ -1,0 +1,23 @@
+stalmarck-triples 1
+nodes 19
+vars 4
+v 1 x3
+v 2 x4
+v 4 x2
+v 8 x1
+triples 14
+t and 3 2 5
+t eq 5 8 8
+t eq 6 2 10
+t and 7 6 12
+t eq 9 2 16
+t eq 10 0 18
+t eq 11 16 20
+t and 12 15 22
+t and 13 17 17
+t eq 14 4 26
+t eq 15 4 8
+t and 16 9 31
+t and 17 28 32
+t eq 18 24 34
+root 37

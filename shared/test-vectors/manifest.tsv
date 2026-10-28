@@ -1,0 +1,186 @@
+# stalmarck test vectors; see README.md for the columns
+# id	family	generator_version	seed	params	file	sha256	expected	expected_source	ref_hardness
+small-001	small	1	1	random_formula vars=3 depth=4	small/small-001.prop	50313adddde6034b1eb0bffe6bba93a5ef922b5f013efbd95781f7fcc58db3f7	SAT	oracle	-
+small-002	small	1	2	random_formula vars=4 depth=5	small/small-002.prop	1fce9bf5b094435174a024f6462a5675839411c4aceb783efbc023b0f1c8bcec	SAT	oracle	-
+small-003	small	1	3	random_formula vars=5 depth=6	small/small-003.prop	22cbea5ae74e42b9205bbc0e46224e50e86dc9f4407c42778af2831a079935a1	SAT	oracle	-
+small-004	small	1	4	random_formula vars=6 depth=3	small/small-004.prop	9fdcdcb78cc53975888b7dba9591cd406647dd56caeff887a1bec4592894790d	SAT	oracle	-
+small-005	small	1	5	random_formula vars=2 depth=4	small/small-005.prop	7c3a7e074bca374d3ff9743f005e1ca3d94244cd455e44fc5b23c49d42d9425e	SAT	oracle	-
+small-006	small	1	6	random_formula vars=3 depth=5	small/small-006.prop	e4d7cbc8c5281aec9bc924cb1c5a41ea09b2cd02ecfa77b3b049e49f1355cca1	SAT	oracle	-
+small-007	small	1	7	random_formula vars=4 depth=6	small/small-007.prop	68f787562aee7ac494e38d6359422f28a17721a9fd5e3541193ff3d32f08e1be	SAT	oracle	-
+small-008	small	1	8	random_formula vars=5 depth=3	small/small-008.prop	b6dcd66d105f6a4eb1edbe9b98d85b955042dfe06df248beb839110b6d548e43	SAT	oracle	-
+small-009	small	1	9	random_formula vars=6 depth=4	small/small-009.prop	0b25e55b6b0a854f6f4c70920b6db9cedad6ae6ca7df4cf921c3cb2a68b342db	SAT	oracle	-
+small-010	small	1	10	random_formula vars=2 depth=5	small/small-010.prop	b42fb6b522f3eff387d15b3d5497561e5956d99f01ac3649de0da89f683d8839	SAT	oracle	-
+small-011	small	1	11	random_formula vars=3 depth=6	small/small-011.prop	e88605e769c961f6874b656f5256f7623f41d1e48be863e05cb2f96f44b20662	SAT	oracle	-
+small-012	small	1	12	random_formula vars=4 depth=3	small/small-012.prop	cbb9000570021972b35ba606082d0a7ec49afd67b7df699b2ecf90aa00bfc15f	SAT	oracle	-
+small-013	small	1	13	random_formula vars=5 depth=4	small/small-013.prop	c3e7d348748d004775b062bd9f0454e061e1729da8c08be74032cdc40ea2c94f	SAT	oracle	-
+small-014	small	1	14	random_formula vars=6 depth=5	small/small-014.prop	8650ddda42ba55219d09abb72e8aac61e8531df97ed9995e0b6c0f1513ae662c	SAT	oracle	-
+small-015	small	1	15	random_formula vars=2 depth=6	small/small-015.prop	fa2c21d0691776f0b9adbe3d2ee0faa6e76e8dd611a11c0eb096f30ea286a393	SAT	oracle	-
+small-016	small	1	16	random_formula vars=3 depth=3	small/small-016.prop	c3e7d348748d004775b062bd9f0454e061e1729da8c08be74032cdc40ea2c94f	SAT	oracle	-
+small-017	small	1	17	random_formula vars=4 depth=4	small/small-017.prop	4b03864e1e614a60f6b90fc6aa31be89c560ab2c46b560e1fcf942b007533053	SAT	oracle	-
+small-018	small	1	18	random_formula vars=5 depth=5	small/small-018.prop	50313adddde6034b1eb0bffe6bba93a5ef922b5f013efbd95781f7fcc58db3f7	SAT	oracle	-
+small-019	small	1	19	random_formula vars=6 depth=6	small/small-019.prop	2858922f25431f2fe0c0e0f16351025f73571da9cc08779dd5c12c5b4eebf482	SAT	oracle	-
+small-020	small	1	20	random_formula vars=2 depth=3	small/small-020.prop	5d7cadf22e5cb0944571085190c81df2d6cdffdb08b0f06ca6ed9c69894ee548	SAT	oracle	-
+small-021	small	1	21	random_formula vars=3 depth=4	small/small-021.prop	a05831be53beacd70040a1bc10b7ca2a57979df1db7e01defdd4205872718a30	SAT	oracle	-
+small-022	small	1	22	random_formula vars=4 depth=5	small/small-022.prop	5ecb8efb904287ac131433cef86a25b674fb828514fb37640d24c43937b2eec6	SAT	oracle	-
+small-023	small	1	23	random_formula vars=5 depth=6	small/small-023.prop	f068b721fdad2d2c0a285e9785fa95db7071d7b32149a26d94239cf8268a9e4c	SAT	oracle	-
+small-024	small	1	24	random_formula vars=6 depth=3	small/small-024.prop	32b545a51ff60b3db4524b95cfd581bf19ae19977dc8fbdcd3a86d9104def8f2	SAT	oracle	-
+small-025	small	1	25	random_formula vars=2 depth=4	small/small-025.prop	558b0a802e28e89653cd66cfa42401d68c4f87b5e2c241c3b8109b4d9352f894	SAT	oracle	-
+small-026	small	1	26	random_formula vars=3 depth=5	small/small-026.prop	a555b0e48ce6b2ec50ca32bf63f77aaa5e097bd53df8a2b8f27a7d7bb4007ea8	SAT	oracle	-
+small-027	small	1	27	random_formula vars=4 depth=6	small/small-027.prop	9c93d46ee9689fd2e9a20378f589b5ddc665cc91904b904e02c6bfd26f62ade4	SAT	oracle	-
+small-028	small	1	28	random_formula vars=5 depth=3	small/small-028.prop	64585448ca290701f8a4b39020fbee8ce4bd9486d2c7140e9d715034b9bde280	SAT	oracle	-
+small-029	small	1	29	random_formula vars=6 depth=4	small/small-029.prop	c3e7d348748d004775b062bd9f0454e061e1729da8c08be74032cdc40ea2c94f	SAT	oracle	-
+small-030	small	1	30	random_formula vars=2 depth=5	small/small-030.prop	50313adddde6034b1eb0bffe6bba93a5ef922b5f013efbd95781f7fcc58db3f7	SAT	oracle	-
+small-031	small	1	31	random_formula vars=3 depth=6	small/small-031.prop	46ecffe51a7bd5d074ad6061a360f4ad2f17124c7c0ae33c60fdea12169fd2e7	SAT	oracle	-
+small-032	small	1	32	random_formula vars=4 depth=3	small/small-032.prop	078ed964f11a29580b35060d5a02a7114c8401abf2376ef3214246fab738aacf	SAT	oracle	-
+small-033	small	1	33	random_formula vars=5 depth=4	small/small-033.prop	7fadfcec5d987ee09161fdd54a71ca06bd652834c774f36e2e379f97f407c5e9	SAT	oracle	-
+small-034	small	1	34	random_formula vars=6 depth=5	small/small-034.prop	b4727bb1b9a1462bd65f0f7b0f224a9fca84e5163b66d9827be66bbc9826cef4	SAT	oracle	-
+small-035	small	1	35	random_formula vars=2 depth=6	small/small-035.prop	c3e7d348748d004775b062bd9f0454e061e1729da8c08be74032cdc40ea2c94f	SAT	oracle	-
+small-036	small	1	36	random_formula vars=3 depth=3	small/small-036.prop	363f30be6548ce48b0b775fac4968ed20babae1bd258ffd944b1b81b065f3c21	SAT	oracle	-
+small-037	small	1	37	random_formula vars=4 depth=4	small/small-037.prop	385af8b0051b3599bbfe8f1abc480a7727dea9411cf0b19b5e5831561e551b80	SAT	oracle	-
+small-038	small	1	38	random_formula vars=5 depth=5	small/small-038.prop	503566c074983287aca3cbf2dc1adf29af2462e95591b0ef5fe316dfb21c4c73	SAT	oracle	-
+small-039	small	1	39	random_formula vars=6 depth=6	small/small-039.prop	9a79e02a6adc87c27349f11bc6251d823ae3fdc0077a64dbbb3210e6ac488b07	SAT	oracle	-
+small-040	small	1	40	random_formula vars=2 depth=3	small/small-040.prop	d32dff88d4a3b3a8538f3617bdb692df28abe6591c90afafd191fe3d51ca59ec	SAT	oracle	-
+small-041	small	1	41	random_formula vars=3 depth=4	small/small-041.prop	3e83f0b0297c2562b1a233fdfa1c3a02abbab07ae02f8e2de7e76c86a82510c2	SAT	oracle	-
+small-042	small	1	42	random_formula vars=4 depth=5	small/small-042.prop	340e1debb36dce91e7ede98a02753962cb76347b6765aa1e364957e5bfac1cd4	SAT	oracle	-
+small-043	small	1	43	random_formula vars=5 depth=6	small/small-043.prop	46ecffe51a7bd5d074ad6061a360f4ad2f17124c7c0ae33c60fdea12169fd2e7	SAT	oracle	-
+small-044	small	1	44	random_formula vars=6 depth=3	small/small-044.prop	401d7ca88cb56a9f00a16a161c189df4e3cd57e1ecaa55e67829a9dbe0688fb3	SAT	oracle	-
+small-045	small	1	45	random_formula vars=2 depth=4	small/small-045.prop	fccbabb215514a100b39af40b5e03ab4b8ce5d3431f860be532e8353f1406fea	SAT	oracle	-
+small-046	small	1	46	random_formula vars=3 depth=5	small/small-046.prop	c4f82cb3c7213521f404f60c6bc6bfc5d15e7fcd2188dfb75b923b62fc413d30	SAT	oracle	-
+small-047	small	1	47	random_formula vars=4 depth=6	small/small-047.prop	50313adddde6034b1eb0bffe6bba93a5ef922b5f013efbd95781f7fcc58db3f7	SAT	oracle	-
+small-048	small	1	48	random_formula vars=5 depth=3	small/small-048.prop	c33c63b9676c5dc4fc67119d667add5e9a5c32118e58fe93a15e785a240a7438	SAT	oracle	-
+small-049	small	1	49	random_formula vars=6 depth=4	small/small-049.prop	4a2530865dc6edc7a342febfb3fff5a1907a1d253db95f3ba1333dd89a60f989	SAT	oracle	-
+small-050	small	1	50	random_formula vars=2 depth=5	small/small-050.prop	3aae39b83398c99a440529dddfb05891543c9c1187db7772fb397695a553a8df	SAT	oracle	-
+small-051	small	1	51	random_formula vars=3 depth=6	small/small-051.prop	873f58a972c52a2a9eecb7e6e0f51e9e77cd3db2ff18e6e906fb784353929f73	SAT	oracle	-
+small-052	small	1	52	random_formula vars=4 depth=3	small/small-052.prop	7f543c133d8d6d6272a0eccc7bf42f1ad9b3adf626dbb970506cd58d0188806f	SAT	oracle	-
+small-053	small	1	53	random_formula vars=5 depth=4	small/small-053.prop	049014b11b975497d34544755869672a0f1955a55e27b6085eb1b327e8f7ccbc	SAT	oracle	-
+small-054	small	1	54	random_formula vars=6 depth=5	small/small-054.prop	1fce9bf5b094435174a024f6462a5675839411c4aceb783efbc023b0f1c8bcec	SAT	oracle	-
+small-055	small	1	55	random_formula vars=2 depth=6	small/small-055.prop	ae2054f9dc86d06d53222f793722c5703eef89fa7d880a17f4c503abe4a4fdd6	UNSAT	oracle	1
+small-056	small	1	56	random_formula vars=3 depth=3	small/small-056.prop	10b7e595ced97357b0c1a8366002fa8b4d0482eb8cc0089484a9fd17013753a6	UNSAT	oracle	0
+small-057	small	1	57	random_formula vars=4 depth=4	small/small-057.prop	b441a33f363cfd89e706f62d0ebac404763029d4f53344b44fb79badaf6f56b2	SAT	oracle	-
+small-058	small	1	58	random_formula vars=5 depth=5	small/small-058.prop	da17210e112917004b7f1f285ff7351b6262daf85ee8e5ae373a0f49528b0a7e	SAT	oracle	-
+small-059	small	1	59	random_formula vars=6 depth=6	small/small-059.prop	60f85508107fcb083d247b21a12fa6f60d2d91c9dd1cc08f6b14953877301464	SAT	oracle	-
+small-060	small	1	60	random_formula vars=2 depth=3	small/small-060.prop	c3e7d348748d004775b062bd9f0454e061e1729da8c08be74032cdc40ea2c94f	SAT	oracle	-
+small-061	small	1	61	random_formula vars=3 depth=4	small/small-061.prop	da932071e9da9b556c489c4569e386044c083a9d1603b0a58a2cf18e4baa8c84	SAT	oracle	-
+small-062	small	1	62	random_formula vars=4 depth=5	small/small-062.prop	f659601468e0b215f58a7b15d72356f2c645975480c351bab9a0e062e5a51825	SAT	oracle	-
+small-063	small	1	63	random_formula vars=5 depth=6	small/small-063.prop	c3e7d348748d004775b062bd9f0454e061e1729da8c08be74032cdc40ea2c94f	SAT	oracle	-
+small-064	small	1	64	random_formula vars=6 depth=3	small/small-064.prop	20f6b9ebddc2b88712894325a1fc366a912e3512b5229ea2ec9f391d73f51eee	SAT	oracle	-
+small-065	small	1	65	random_formula vars=2 depth=4	small/small-065.prop	c6dcd4b1869cd16bc4a011e560081e1bf409f6de59c65a90c0b023b2be184a8d	SAT	oracle	-
+small-066	small	1	66	random_formula vars=3 depth=5	small/small-066.prop	138027e188a9e28c6955cadd7d0a6f6cb33afa3a723e528875e6afd525a0c501	SAT	oracle	-
+small-067	small	1	67	random_formula vars=4 depth=6	small/small-067.prop	4014f7a007295b7fc2cf1be89308cba60355db024c358f64b5843a0c87647751	SAT	oracle	-
+small-068	small	1	68	random_formula vars=5 depth=3	small/small-068.prop	46ecffe51a7bd5d074ad6061a360f4ad2f17124c7c0ae33c60fdea12169fd2e7	SAT	oracle	-
+small-069	small	1	69	random_formula vars=6 depth=4	small/small-069.prop	65053003d8c97902fcc3457fe91bb02dc9520bf11da174a874959a7d2c03697c	SAT	oracle	-
+small-070	small	1	70	random_formula vars=2 depth=5	small/small-070.prop	41ca9c393a649202a9d38abc28c2e256fefbe3b0494cb06c694e08a612e53186	SAT	oracle	-
+small-071	small	1	71	random_formula vars=3 depth=6	small/small-071.prop	6f3e0aa71186e932767bd5476b8d1160dfbaaedd662900f8c57ff8c3e9d5f28a	SAT	oracle	-
+small-072	small	1	72	random_formula vars=4 depth=3	small/small-072.prop	46ecffe51a7bd5d074ad6061a360f4ad2f17124c7c0ae33c60fdea12169fd2e7	SAT	oracle	-
+small-073	small	1	73	random_formula vars=5 depth=4	small/small-073.prop	f513d00b3fc17dd51ae3ffcb3762cc7406aba7c23a2252aebcab760914f28e3e	SAT	oracle	-
+small-074	small	1	74	random_formula vars=6 depth=5	small/small-074.prop	a7845175cac3ad02e87edda1dd75d6c2350c38043a46c47959f8b642038d0b5a	SAT	oracle	-
+small-075	small	1	75	random_formula vars=2 depth=6	small/small-075.prop	c3e7d348748d004775b062bd9f0454e061e1729da8c08be74032cdc40ea2c94f	SAT	oracle	-
+small-076	small	1	76	random_formula vars=3 depth=3	small/small-076.prop	a2fa422fe1031d934080f2e2162161cb1c48def8581a8cc04aee543da352e5d8	SAT	oracle	-
+small-077	small	1	77	random_formula vars=4 depth=4	small/small-077.prop	064c6dafb6402430561834835c48e8fdf9de82f439847d16b5646754c9316364	SAT	oracle	-
+small-078	small	1	78	random_formula vars=5 depth=5	small/small-078.prop	98082ba218cf839c986520718ceb19a65db524fbbd5fc6b20aeb6508b6cdfa1a	SAT	oracle	-
+small-079	small	1	79	random_formula vars=6 depth=6	small/small-079.prop	95997ee8396f9e05abaafc5623e2254a37cf99367e2ef84c221613cfea9ac373	SAT	oracle	-
+small-080	small	1	80	random_formula vars=2 depth=3	small/small-080.prop	c3e7d348748d004775b062bd9f0454e061e1729da8c08be74032cdc40ea2c94f	SAT	oracle	-
+small-unsat-001	small	1	10045	random_formula vars=4 depth=7 (first UNSAT seeds from 10000)	small/small-unsat-001.prop	a27d4d92e846aef5ce5f5c2af92d67dfc64595ee87012be0ef6d3bf810eceae4	UNSAT	oracle	1
+small-unsat-002	small	1	10080	random_formula vars=3 depth=6 (first UNSAT seeds from 10000)	small/small-unsat-002.prop	4d0daf0c0aeab86994724d873b1c907ade4e88f1f3dc3e13e4aa5a18e7447927	UNSAT	oracle	1
+small-unsat-003	small	1	10101	random_formula vars=4 depth=6 (first UNSAT seeds from 10000)	small/small-unsat-003.prop	26807bac9efacfe2c9c11b64c7eedfe339ce912e5652ca038bea08d91bf986ad	UNSAT	oracle	0
+small-unsat-004	small	1	10109	random_formula vars=4 depth=8 (first UNSAT seeds from 10000)	small/small-unsat-004.prop	83f65f3137eb9e75a01f33e8b3c24d21c87b8a6ba9730e9039a43707bcdcfe7a	UNSAT	oracle	0
+small-unsat-005	small	1	10144	random_formula vars=3 depth=7 (first UNSAT seeds from 10000)	small/small-unsat-005.prop	346546e6b4db1e4b32c247a0c4e716bfbc43a4a54b538243a7d91b5951e6e8b8	UNSAT	oracle	0
+small-unsat-006	small	1	10184	random_formula vars=3 depth=8 (first UNSAT seeds from 10000)	small/small-unsat-006.prop	e2ca2771fc7c542bcdeeb6065a6e872ff2f2d263a19005b55f63311c0a8f1fa9	UNSAT	oracle	0
+small-unsat-007	small	1	10192	random_formula vars=3 depth=7 (first UNSAT seeds from 10000)	small/small-unsat-007.prop	76b1c2f62185f6cf889f8bb5fbb835e219385e209d90fc3f8d6f9b9882634f06	UNSAT	oracle	0
+small-unsat-008	small	1	10229	random_formula vars=4 depth=8 (first UNSAT seeds from 10000)	small/small-unsat-008.prop	36dbdea4ddb8cc18449f1525acf064822b0b35c685dd87341c21cefc0af95dd0	UNSAT	oracle	0
+small-unsat-009	small	1	10238	random_formula vars=5 depth=8 (first UNSAT seeds from 10000)	small/small-unsat-009.prop	e2ca2771fc7c542bcdeeb6065a6e872ff2f2d263a19005b55f63311c0a8f1fa9	UNSAT	oracle	0
+small-unsat-010	small	1	10241	random_formula vars=4 depth=8 (first UNSAT seeds from 10000)	small/small-unsat-010.prop	65d793afe7f790dd3b8c06a669007716d50754ea25034d7e46ecc2dd66360442	UNSAT	oracle	0
+small-unsat-011	small	1	10277	random_formula vars=4 depth=8 (first UNSAT seeds from 10000)	small/small-unsat-011.prop	64f4d418bf7354db964eb8a8c2fc9e40737a7940671433f8a33e05ce2f9fd7f5	UNSAT	oracle	0
+small-unsat-012	small	1	10317	random_formula vars=4 depth=6 (first UNSAT seeds from 10000)	small/small-unsat-012.prop	a8f54c700d1f59faf71a4a72d9e2394ed5eca0ec4c9552912695dba4d6dda564	UNSAT	oracle	0
+small-unsat-013	small	1	10324	random_formula vars=3 depth=7 (first UNSAT seeds from 10000)	small/small-unsat-013.prop	894b3f24957f7d8d86eaa806bdd9c20f0d136777782d9d0969e47f5a08feed37	UNSAT	oracle	1
+small-unsat-014	small	1	10374	random_formula vars=5 depth=6 (first UNSAT seeds from 10000)	small/small-unsat-014.prop	e2ca2771fc7c542bcdeeb6065a6e872ff2f2d263a19005b55f63311c0a8f1fa9	UNSAT	oracle	0
+small-unsat-015	small	1	10449	random_formula vars=4 depth=6 (first UNSAT seeds from 10000)	small/small-unsat-015.prop	e97ecf4171769c9783674bec3d654bcb4ed315c05973062812dc9d3925c65d4d	UNSAT	oracle	0
+small-unsat-016	small	1	10460	random_formula vars=3 depth=8 (first UNSAT seeds from 10000)	small/small-unsat-016.prop	d68bfb808fdcf7301f643f18b5a6273bdedd4f960d9fe9c8421f4ffc807a49c7	UNSAT	oracle	1
+small-unsat-017	small	1	10469	random_formula vars=4 depth=8 (first UNSAT seeds from 10000)	small/small-unsat-017.prop	f656111ab7a155a9c79e91c50417770ffbdba03b37131fb38baedb3cb29194c1	UNSAT	oracle	0
+small-unsat-018	small	1	10501	random_formula vars=4 depth=7 (first UNSAT seeds from 10000)	small/small-unsat-018.prop	704a9668c7e02b0b52c6c5b88e750e2bee7658ac980dffd9e5e0524e2d2ab80f	UNSAT	oracle	0
+small-unsat-019	small	1	10536	random_formula vars=3 depth=6 (first UNSAT seeds from 10000)	small/small-unsat-019.prop	fff4245070e7584218d303f5e2cd85ccb9a7b8ba6b39f88937f698d4dd9716f3	UNSAT	oracle	1
+small-unsat-020	small	1	10576	random_formula vars=3 depth=7 (first UNSAT seeds from 10000)	small/small-unsat-020.prop	dd484bdb1fadda741de01c6eacb56d6c465f98a9a379a7dd3cbb94d83f7803c0	UNSAT	oracle	0
+small-unsat-021	small	1	10588	random_formula vars=3 depth=7 (first UNSAT seeds from 10000)	small/small-unsat-021.prop	52b44fdbb7a039468db38ea37ff4bd430f799f3acd733b864915a452438cf29a	UNSAT	oracle	0
+small-unsat-022	small	1	10610	random_formula vars=5 depth=8 (first UNSAT seeds from 10000)	small/small-unsat-022.prop	24a095db67441a2a2217791d9f581a609f5175ea4e974c949d37ee6f81c2bff6	UNSAT	oracle	0
+small-unsat-023	small	1	10645	random_formula vars=4 depth=7 (first UNSAT seeds from 10000)	small/small-unsat-023.prop	43049ee2dbc074bb8eea834d9b4fd4883ef164297ab0c3945a047d08022b1676	UNSAT	oracle	0
+small-unsat-024	small	1	10649	random_formula vars=4 depth=8 (first UNSAT seeds from 10000)	small/small-unsat-024.prop	db75692beb704b2a247e29bbe9c36f384f5b4afa760b2162a5c141843e6f5b60	UNSAT	oracle	1
+small-unsat-025	small	1	10673	random_formula vars=4 depth=8 (first UNSAT seeds from 10000)	small/small-unsat-025.prop	f656111ab7a155a9c79e91c50417770ffbdba03b37131fb38baedb3cb29194c1	UNSAT	oracle	0
+small-unsat-026	small	1	10839	random_formula vars=6 depth=6 (first UNSAT seeds from 10000)	small/small-unsat-026.prop	e2ca2771fc7c542bcdeeb6065a6e872ff2f2d263a19005b55f63311c0a8f1fa9	UNSAT	oracle	0
+small-unsat-027	small	1	10896	random_formula vars=3 depth=6 (first UNSAT seeds from 10000)	small/small-unsat-027.prop	c7b2b9fb8690fd72a9f7b3721ecaa1196367876fc10c3a420516e93c17277641	UNSAT	oracle	0
+small-unsat-028	small	1	10926	random_formula vars=5 depth=6 (first UNSAT seeds from 10000)	small/small-unsat-028.prop	d040ee74bb5ca0a560fb9f0ef8607109f5b008954dedcfeb4dcceb66ba88fef9	UNSAT	oracle	0
+small-unsat-029	small	1	10942	random_formula vars=5 depth=7 (first UNSAT seeds from 10000)	small/small-unsat-029.prop	7c0256ff092af6fc820e75ae4d98e12c31479146885f3768d1d8e758af89be23	UNSAT	oracle	0
+small-unsat-030	small	1	10947	random_formula vars=6 depth=6 (first UNSAT seeds from 10000)	small/small-unsat-030.prop	e2ca2771fc7c542bcdeeb6065a6e872ff2f2d263a19005b55f63311c0a8f1fa9	UNSAT	oracle	0
+small-unsat-031	small	1	10948	random_formula vars=3 depth=7 (first UNSAT seeds from 10000)	small/small-unsat-031.prop	39183fd377af46c224a1f8eb248247938d2295492c0776eb83c5dbf6abb1ea1d	UNSAT	oracle	0
+small-unsat-032	small	1	10952	random_formula vars=3 depth=8 (first UNSAT seeds from 10000)	small/small-unsat-032.prop	b93d34dcfdf2a894c283545f747b925c3b5c389febb6466cc058f1f82dbd830c	UNSAT	oracle	0
+small-unsat-033	small	1	10964	random_formula vars=3 depth=8 (first UNSAT seeds from 10000)	small/small-unsat-033.prop	27d44ec0deecc6600890fb02e21df26337d3d861a4d399e58fc7ad870a3cffd7	UNSAT	oracle	0
+small-unsat-034	small	1	10986	random_formula vars=5 depth=6 (first UNSAT seeds from 10000)	small/small-unsat-034.prop	912c6b779d2d17c02375011b839ab90df3cc8be036a8a0347bf706efd816b729	UNSAT	oracle	0
+small-unsat-035	small	1	10999	random_formula vars=6 depth=7 (first UNSAT seeds from 10000)	small/small-unsat-035.prop	d98b8f3a9cbfc8aba5e9abcab375824b5fff8aac1b88aeda5869fb9fbdd66f43	UNSAT	oracle	0
+small-unsat-036	small	1	11041	random_formula vars=4 depth=7 (first UNSAT seeds from 10000)	small/small-unsat-036.prop	3329165133f8c0ce8e52054c391652e58e86dba580851c95ecfa528232d88665	UNSAT	oracle	1
+small-unsat-037	small	1	11049	random_formula vars=4 depth=6 (first UNSAT seeds from 10000)	small/small-unsat-037.prop	4a2f172c67be5f7c4575c33f97236601f011f8af2b568629551ac954afccd0a5	UNSAT	oracle	0
+small-unsat-038	small	1	11061	random_formula vars=4 depth=6 (first UNSAT seeds from 10000)	small/small-unsat-038.prop	dd2e1a7aee12694fbaf9a1c98837c99cbabd9caeb83c09737ea4f0b774b74262	UNSAT	oracle	0
+small-unsat-039	small	1	11080	random_formula vars=3 depth=7 (first UNSAT seeds from 10000)	small/small-unsat-039.prop	3854ec2baf39e583d63f8863ed9611abb0f88105ae9685e4966fcca72d1ee5e9	UNSAT	oracle	0
+small-unsat-040	small	1	11164	random_formula vars=3 depth=7 (first UNSAT seeds from 10000)	small/small-unsat-040.prop	e0938b05239bf984c24fdbe8173ddb466195e0ff0dd14067168e155eab7fcd4f	UNSAT	oracle	0
+random-001	random	1	1	random_kcnf vars=9 clauses=38 k=3	random/random-001.cnf	631e6326da70a0ea62a1fb41dd01f0d0eb1b41ac75eebb4351387f8dce3f291b	UNSAT	oracle	1
+random-002	random	1	2	random_kcnf vars=10 clauses=43 k=3	random/random-002.cnf	94fa3eae1ff0d424ff6ebeac062e837889371d394fc5b1d598748eba762d56cd	SAT	oracle	-
+random-003	random	1	3	random_kcnf vars=11 clauses=47 k=3	random/random-003.cnf	51b02b4a4999b8cdc5c362ecf96d8c1a631555280471c8eb0f1781c072b94127	UNSAT	oracle	1
+random-004	random	1	4	random_kcnf vars=12 clauses=51 k=3	random/random-004.cnf	f7726328a12472fffe652722d1b594cfde618f10cdc85d1b183c4adf38ce80cd	SAT	oracle	-
+random-005	random	1	5	random_kcnf vars=13 clauses=55 k=3	random/random-005.cnf	8d5e08772c7cfb2715f28778e907d04679ce7091c1d0fd8f35f741357a9f5fea	UNSAT	oracle	1
+random-006	random	1	6	random_kcnf vars=14 clauses=60 k=3	random/random-006.cnf	08de33ae18da3d1d750f99fb236f6f08fbafcc7cc27e5b7ae7346821e2a970d1	SAT	oracle	-
+random-007	random	1	7	random_kcnf vars=8 clauses=34 k=3	random/random-007.cnf	caf391a6f1c67900472460de9afc46072562ddf80375faddc4502ede031789f3	SAT	oracle	-
+random-008	random	1	8	random_kcnf vars=9 clauses=38 k=3	random/random-008.cnf	7031f453a9e922dcc0d33d84dde88327bd5c3d5167c81b92c093ea264c460662	SAT	oracle	-
+random-009	random	1	9	random_kcnf vars=10 clauses=43 k=3	random/random-009.cnf	bc25086e8cc968aecbe8409d78a7d46b9f2a00729b42dba0e4e880650d49d30d	SAT	oracle	-
+random-010	random	1	10	random_kcnf vars=11 clauses=47 k=3	random/random-010.cnf	990878a8eb8df83091066a0533ecf1a69a13285b554c8f30e733ab790056b6e0	SAT	oracle	-
+random-011	random	1	11	random_kcnf vars=12 clauses=51 k=3	random/random-011.cnf	8c484edeec3b74a9ea6b166dc0cc3a5aca865f6b2c7b3b7402012f83ca2c6b44	UNSAT	oracle	1
+random-012	random	1	12	random_kcnf vars=13 clauses=55 k=3	random/random-012.cnf	06d3c562fdb7dfc1a90a2a44621fb7119c9a228cc5e4db9b5eab394b9dfca187	UNSAT	oracle	1
+random-013	random	1	13	random_kcnf vars=14 clauses=60 k=3	random/random-013.cnf	c013d8499eee29dbffcfedcaf7d1c4f54d62ee4a4d26d95bb204873212a07d13	SAT	oracle	-
+random-014	random	1	14	random_kcnf vars=8 clauses=34 k=3	random/random-014.cnf	733c15f2f95c7d38a1244814acaa7d24bfbf2371a3c8bb860db3efab5919a1d7	SAT	oracle	-
+random-015	random	1	15	random_kcnf vars=9 clauses=38 k=3	random/random-015.cnf	bb1945df86f933aff85d93ea07e1dbbc1e6a286b9762cb74800dc0598f14e59f	SAT	oracle	-
+random-016	random	1	16	random_kcnf vars=10 clauses=43 k=3	random/random-016.cnf	06659eb25f3697002955b5ae67dc22bbe5ea77a36c19f3251926fe76526a9d9b	SAT	oracle	-
+random-017	random	1	17	random_kcnf vars=11 clauses=47 k=3	random/random-017.cnf	1fbee40785922171dacfd1c31dd365b122ae8cd9367f9d153c9ab7353dc90665	SAT	oracle	-
+random-018	random	1	18	random_kcnf vars=12 clauses=51 k=3	random/random-018.cnf	8c364bdea15b7470fb97cb934401f762754cbdee62fd8b4a721bbf8e3ad56e48	SAT	oracle	-
+random-019	random	1	19	random_kcnf vars=13 clauses=55 k=3	random/random-019.cnf	2329c910fc80240781adb8bf9a915b623ec5298e70c47a844c697fd82d60640d	UNSAT	oracle	1
+random-020	random	1	20	random_kcnf vars=14 clauses=60 k=3	random/random-020.cnf	83d5be7633de2fd72ed0c12d7a8c8b4ccf3d22e143aaf1fc6b5672a82263d41b	SAT	oracle	-
+random-021	random	1	21	random_kcnf vars=8 clauses=34 k=3	random/random-021.cnf	7b065bfd5196c801acb7cf2f90b0602b2533a2b504b455c1d81dd3c41c0a592c	SAT	oracle	-
+random-022	random	1	22	random_kcnf vars=9 clauses=38 k=3	random/random-022.cnf	603f812888b98d8ef58ed05f3f433f135932e06ec6bad7a875d8148b8c333c3c	SAT	oracle	-
+random-023	random	1	23	random_kcnf vars=10 clauses=43 k=3	random/random-023.cnf	3e33b54e7f7f7fa555dbc4a9444ae86cf32f86f4e3962ed62e2ede3a17d5654e	SAT	oracle	-
+random-024	random	1	24	random_kcnf vars=11 clauses=47 k=3	random/random-024.cnf	112f35bdff2816fd6e4b8a939b09d09401b735d1bd0474b0f98e413f7b4837db	UNSAT	oracle	1
+random-025	random	1	25	random_kcnf vars=12 clauses=51 k=3	random/random-025.cnf	e0ff1ba6ed7218207bb8bfac24ee54fd04fd492089a11a28be62eb76f86a6e69	SAT	oracle	-
+random-026	random	1	26	random_kcnf vars=13 clauses=55 k=3	random/random-026.cnf	d9cc78c372352722c2b68751907e39e27e671d887465918b117c9925090b937b	UNSAT	oracle	1
+random-027	random	1	27	random_kcnf vars=14 clauses=60 k=3	random/random-027.cnf	796dbce8214f799faab3a5ab6f7481d130c4a45b46006a3ce9f2ff81dfdbda1a	SAT	oracle	-
+random-028	random	1	28	random_kcnf vars=8 clauses=34 k=3	random/random-028.cnf	a3aeda36eb4ca4bba7d787439a305e4f862c793fe50c041ff811f93a097c2ed1	SAT	oracle	-
+random-029	random	1	29	random_kcnf vars=9 clauses=38 k=3	random/random-029.cnf	20276f9fe1d66db8f1b66b85ec3507d4bea643287eb8e786893c4001d97912e8	SAT	oracle	-
+random-030	random	1	30	random_kcnf vars=10 clauses=43 k=3	random/random-030.cnf	3cb94db1cf879822bd6cd736b26ecaa7451d550712ab5e5951fd5634aa33d2e0	UNSAT	oracle	1
+random-031	random	1	31	random_kcnf vars=11 clauses=47 k=3	random/random-031.cnf	8b9f8b4dfc0e84b13b751a368aea8f58632e7eb9e922d33f81fd1a2aa1fca0cd	UNSAT	oracle	1
+random-032	random	1	32	random_kcnf vars=12 clauses=51 k=3	random/random-032.cnf	d52dd5663c7efc7c4009d423bfd257782b05298be0d4ba216c28fd132ae168c8	UNSAT	oracle	1
+random-033	random	1	33	random_kcnf vars=13 clauses=55 k=3	random/random-033.cnf	4b62f9dd7a4daec3d5e1523253aaaba03f7aa5ea463ff18406f521fb70f90023	SAT	oracle	-
+random-034	random	1	34	random_kcnf vars=14 clauses=60 k=3	random/random-034.cnf	6b93fe8808da4612a8bfe3fa17beed47c95d70c69734cb06b09a1494d5e5fef1	SAT	oracle	-
+random-035	random	1	35	random_kcnf vars=8 clauses=34 k=3	random/random-035.cnf	a981a82f6a2b7e326f42be79b4ae4e09f5b780b090b5a0f1202bd291b25a921b	SAT	oracle	-
+random-036	random	1	36	random_kcnf vars=9 clauses=38 k=3	random/random-036.cnf	db0aae99ea3fcb847f80c8a4182eba7cad8655419e392aab1fe838d2bde38b24	SAT	oracle	-
+random-037	random	1	37	random_kcnf vars=10 clauses=43 k=3	random/random-037.cnf	edd1313d1b8d78c58b2415f23e7c219bf08f8ccfdf6c58c566a3f215aa052fa3	SAT	oracle	-
+random-038	random	1	38	random_kcnf vars=11 clauses=47 k=3	random/random-038.cnf	06346143f6917e8a4e9adb8f0f5aa380d105ee879a2e6dc746b64592f0161f11	SAT	oracle	-
+random-039	random	1	39	random_kcnf vars=12 clauses=51 k=3	random/random-039.cnf	8d7dabb902f3975edeb5c99f7e01771b902113be17a42d68d0af0d7793a29650	SAT	oracle	-
+random-040	random	1	40	random_kcnf vars=13 clauses=55 k=3	random/random-040.cnf	e80e888527396e016fdda9bbce3e27f35e2225599e9d9fd8f84dd0b1b9cf034f	SAT	oracle	-
+parity-04-0	structured	1	-	parity n=4 parity=false	structured/parity-04-0.prop	6fce3d36ecfdf0467e356bdf018d7d7e40e9f9332979b284b502ff4e908f8c26	SAT	oracle	-
+parity-04-1	structured	1	-	parity n=4 parity=true	structured/parity-04-1.prop	f6fed3602f071226e867a3ae2335165c9d8675374375016c27d5f6cce6ff7de8	SAT	oracle	-
+parity-08-0	structured	1	-	parity n=8 parity=false	structured/parity-08-0.prop	068d94e1518d71af4d1b8867190df92cc00bdba7a2b3a7c6512d1b7b7ab05eed	SAT	oracle	-
+parity-08-1	structured	1	-	parity n=8 parity=true	structured/parity-08-1.prop	a8eb9f64e2417aa03c8e66723e2898b2feec311a23f55bfdc0fcbc62ef6c6bc0	SAT	oracle	-
+parity-12-0	structured	1	-	parity n=12 parity=false	structured/parity-12-0.prop	9ba5fb9d82eb16cd16e7d9cd27e7a6d8ba36814fef618337984308351d75cd7b	SAT	oracle	-
+parity-12-1	structured	1	-	parity n=12 parity=true	structured/parity-12-1.prop	bf76a6ee83d65ab176999459ddcc88e075aa09d1786e899d2b5792b95fb9565f	SAT	oracle	-
+parity-mismatch-02	structured	1	-	parity_mismatch n=2	structured/parity-mismatch-02.prop	a4021533eb3127e1314da3e41a7ce7726f7d5a20f4934a16e47abaa20a9238f0	UNSAT	oracle	0
+parity-mismatch-04	structured	1	-	parity_mismatch n=4	structured/parity-mismatch-04.prop	5181ce4c2d0852940b215cc7220defa15cf93fd74d17a39772d1f07d4983fbc2	UNSAT	oracle	2
+parity-mismatch-08	structured	1	-	parity_mismatch n=8	structured/parity-mismatch-08.prop	61d10d589ffc714b15523c72c40c74daf30e6e48d3ca38308583c2bc4e7215e5	UNSAT	oracle	2
+parity-mismatch-16	structured	1	-	parity_mismatch n=16	structured/parity-mismatch-16.prop	7847d782e3f377282d2d9b1d4020b714b83ba9e658ae80c46fd39756ab57b820	UNSAT	oracle	2
+parity-mismatch-32	structured	1	-	parity_mismatch n=32	structured/parity-mismatch-32.prop	bb03581cbfdfda7f755d8119ef94bc3a1a5332589f205f62f9cb8babfe2c21dd	UNSAT	theory	2
+implication-chain-0010	saturation	1	-	implication_chain n=10	saturation/implication-chain-0010.prop	cd632c327b7b66f0c9741794abbeb6d25f2b255b7f78bc73a995682256683ea6	UNSAT	oracle	0
+implication-chain-0100	saturation	1	-	implication_chain n=100	saturation/implication-chain-0100.prop	2a0c14c1dd7105273ea781f88677a480a545ea5dade5932fd1d0f92511c2955a	UNSAT	theory	0
+implication-chain-1000	saturation	1	-	implication_chain n=1000	saturation/implication-chain-1000.prop	6dd61616805c5d6c3a04b8d5f997a09bc8019d6097991361d991b4c3e5bcb952	UNSAT	theory	0
+pigeonhole-1	unsat	1	-	pigeonhole holes=1	unsat/pigeonhole-1.cnf	3d47848ba573b90cf78780efbcd7ed77a3f512cd3d63b2923ff20c741651c498	UNSAT	oracle	0
+pigeonhole-2	unsat	1	-	pigeonhole holes=2	unsat/pigeonhole-2.cnf	66dc4a4c38ac63a4f7f52e52eeecefded88e9acf7297dffe4048855a932df29b	UNSAT	oracle	1
+pigeonhole-3	unsat	1	-	pigeonhole holes=3	unsat/pigeonhole-3.cnf	8500d387f53eb4e57f524c2cd18c838c712e8fe4ca6c45474074a157aa39a1e4	UNSAT	oracle	2
+pigeonhole-4	unsat	1	-	pigeonhole holes=4	unsat/pigeonhole-4.cnf	c8a59526385b925866951e9ea410a123c4d8715d7144f038539eebbff2b2c222	UNSAT	oracle	3
+pigeonhole-5	unsat	1	-	pigeonhole holes=5	unsat/pigeonhole-5.cnf	7e5d017392eaa29f07649ef4d2383bd8472e0979a3c17c46e48c7f9442fe9610	UNSAT	theory	-
+st98-distrib	dilemma	1	-	negated tautology from the literature	dilemma/st98-distrib.prop	e0d529b9a077fcd1d6bde54c4f771a71f55fb1356da4f06e4c263adbc86fdf1d	UNSAT	oracle	0
+st98-reverse	dilemma	1	-	negated tautology from the literature	dilemma/st98-reverse.prop	da588b718091b4335e94a8b6ee131378d6a742123792ebf6c551f3ad53a49d65	UNSAT	oracle	1
+tr12-ex1	dilemma	1	-	negated tautology from the literature	dilemma/tr12-ex1.prop	ab8dc8fae3f625e3d0062e3700a08cd50f4ff021303167099708e704efaedbfd	UNSAT	oracle	0
+tr12-ex2	dilemma	1	-	negated tautology from the literature	dilemma/tr12-ex2.prop	efe324c9d7502b10816ecea9ca7ccb158bd6c4f942fba86266410f81da324388	UNSAT	oracle	1
+tr12-ex3	dilemma	1	-	negated tautology from the literature	dilemma/tr12-ex3.prop	5892efd5ae2a7d0ef6b24982233f11a573312c6a5c381425cd210749d07ad97a	UNSAT	oracle	0

@@ -1,0 +1,11 @@
+stalmarck-triples 1
+nodes 7
+vars 2
+v 1 x1
+v 4 x2
+triples 4
+t eq 2 2 2
+t and 3 2 2
+t eq 5 6 8
+t eq 6 4 10
+root 13

@@ -1,0 +1,52 @@
+stalmarck-triples 1
+nodes 48
+vars 16
+v 1 x1
+v 2 x2
+v 4 x3
+v 6 x4
+v 8 x5
+v 10 x6
+v 12 x7
+v 14 x8
+v 16 x9
+v 18 x10
+v 20 x11
+v 22 x12
+v 24 x13
+v 26 x14
+v 28 x15
+v 30 x16
+triples 31
+t eq 3 2 4
+t eq 5 6 8
+t eq 7 10 12
+t eq 9 14 16
+t eq 11 18 20
+t eq 13 22 24
+t eq 15 26 28
+t eq 17 30 32
+t eq 19 34 36
+t eq 21 38 40
+t eq 23 42 44
+t eq 25 46 48
+t eq 27 50 52
+t eq 29 54 56
+t eq 31 58 60
+t eq 32 56 60
+t eq 33 52 64
+t eq 34 48 66
+t eq 35 44 68
+t eq 36 40 70
+t eq 37 36 72
+t eq 38 32 74
+t eq 39 28 76
+t eq 40 24 78
+t eq 41 20 80
+t eq 42 16 82
+t eq 43 12 84
+t eq 44 8 86
+t eq 45 4 88
+t eq 46 2 90
+t eq 47 62 92
+root 95

@@ -39,6 +39,10 @@ impl Default for Config {
 pub struct Model(BTreeMap<String, bool>);
 
 impl Model {
+    pub(crate) fn from_map(map: BTreeMap<String, bool>) -> Model {
+        Model(map)
+    }
+
     /// The value of `variable`, if it occurs in the formula.
     pub fn get(&self, variable: &str) -> Option<bool> {
         self.0.get(variable).copied()

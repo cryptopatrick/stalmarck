@@ -20,7 +20,7 @@ autotests = false
 include = [
     "/src/**/*",
     "/tests/**/*",
-    "/examples/**/*",
+    "/examples/basic.rs",
     "/Cargo.toml",
     "/README.md",
     "/LICENSE",
@@ -37,5 +37,24 @@ path = "src/lib.rs"
 name = "tests"
 path = "tests/test.rs"
 
+[[test]]
+name = "formats"
+path = "tests/formats.rs"
+
+[[test]]
+name = "vectors"
+path = "tests/vectors.rs"
+
+[[example]]
+name = "basic"
+path = "examples/basic.rs"
+
+[[example]]
+name = "gen_vectors"
+path = "examples/gen_vectors.rs"
+
 ###############################################################################
 [dependencies]
+
+[dev-dependencies]
+sha2 = "0.11.1"

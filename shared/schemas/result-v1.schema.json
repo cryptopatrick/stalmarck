@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/cryptopatrick/stalmarck/shared/schemas/result-v1.schema.json",
+  "title": "stalmarck solver result, version 1",
+  "description": "One solver run on one input (PRD §34). Implementations print one such object per run; the benchmark runner stores them as JSON Lines. A metric that was not measured is null, never an estimate (PRD §32, §43).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "implementation", "config", "input", "result",
+    "timing", "memory", "counters", "error"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "implementation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": { "enum": ["rust", "rust-scryer", "bend"] },
+        "version": { "type": "string", "description": "crate version or Bend program version" },
+        "git_commit": { "type": ["string", "null"] },
+        "runtime": { "type": ["string", "null"], "description": "e.g. 'rustc 1.99.0', 'scryer-prolog 0.10.0', 'bend 2.0.39 (c, 8 threads)', 'bend 2.0.39 (metal)'" }
+      }
+    },
+    "config": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "track", "max_depth", "sharing"],
+      "properties": {
+        "mode": { "enum": ["sat", "valid"] },
+        "track": { "enum": ["A", "B"], "description": "PRD §39: A = canonical order, B = optimized" },
+        "max_depth": { "type": "integer", "minimum": 0 },
+        "sharing": { "type": "boolean" },
+        "threads": { "type": ["integer", "null"], "minimum": 1 },
+        "max_branches": { "type": ["integer", "null"], "minimum": 0 },
+        "timeout_ms": { "type": ["integer", "null"], "minimum": 0 },
+        "variant": { "type": ["string", "null"], "description": "names the Track B optimization or PRD §25 experiment" }
+      }
+    },
+    "input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "sha256", "format", "variables", "triples", "nodes"],
+      "properties": {
+        "id": { "type": "string", "description": "test-vector or benchmark id" },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "format": { "enum": ["prop", "cnf", "tri"] },
+        "variables": { "type": "integer", "minimum": 0 },
+        "triples": { "type": "integer", "minimum": 0 },
+        "nodes": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["verdict"],
+      "properties": {
+        "verdict": { "enum": ["SAT", "UNSAT", "VALID", "INVALID", "UNKNOWN", "ERROR"] },
+        "unknown_reason": {
+          "enum": ["depth_exhausted", "branch_limit", "timeout", "memory_limit", "model_check_failed", null]
+        },
+        "model": {
+          "type": ["object", "null"],
+          "description": "variable name -> value; required for SAT and INVALID",
+          "additionalProperties": { "type": "boolean" }
+        },
+        "relation": {
+          "type": ["string", "null"],
+          "pattern": "^(contradiction|classes( [0-9]+)+)$",
+          "description": "canonical final relation, docs/triple-format.md §4"
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "verdict": { "enum": ["SAT", "INVALID"] } } },
+          "then": { "required": ["model"], "properties": { "model": { "type": "object" } } }
+        },
+        {
+          "if": { "properties": { "verdict": { "const": "UNKNOWN" } } },
+          "then": { "required": ["unknown_reason"], "properties": { "unknown_reason": { "type": "string" } } }
+        }
+      ]
+    },
+    "timing": {
+      "type": "object",
+      "description": "milliseconds; boundaries per ADR-0008",
+      "additionalProperties": false,
+      "required": ["parse_ms", "decompose_ms", "solver_init_ms", "solve_ms", "total_ms"],
+      "properties": {
+        "parse_ms": { "type": ["number", "null"], "minimum": 0 },
+        "decompose_ms": { "type": ["number", "null"], "minimum": 0 },
+        "solver_init_ms": { "type": ["number", "null"], "minimum": 0 },
+        "solve_ms": { "type": ["number", "null"], "minimum": 0 },
+        "saturation_ms": { "type": ["number", "null"], "minimum": 0 },
+        "dilemma_ms": { "type": ["number", "null"], "minimum": 0 },
+        "merge_ms": { "type": ["number", "null"], "minimum": 0 },
+        "total_ms": { "type": ["number", "null"], "minimum": 0 },
+        "boundary": {
+          "type": ["object", "null"],
+          "description": "rust-scryer only (PRD §24)",
+          "additionalProperties": false,
+          "properties": {
+            "to_prolog_ms": { "type": ["number", "null"] },
+            "prolog_ms": { "type": ["number", "null"] },
+            "from_prolog_ms": { "type": ["number", "null"] },
+            "query_setup_ms": { "type": ["number", "null"] }
+          }
+        }
+      }
+    },
+    "memory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["peak_rss_bytes"],
+      "properties": {
+        "peak_rss_bytes": { "type": ["integer", "null"], "minimum": 0 },
+        "baseline_rss_bytes": { "type": ["integer", "null"], "minimum": 0, "description": "same binary on an empty input; never subtracted silently" },
+        "allocated_bytes": { "type": ["integer", "null"], "minimum": 0 },
+        "device_peak_bytes": { "type": ["integer", "null"], "minimum": 0, "description": "GPU; null = unavailable" }
+      }
+    },
+    "counters": {
+      "type": "object",
+      "description": "SPEC-Z6 and SPEC-K4",
+      "additionalProperties": false,
+      "required": [
+        "triples_processed", "deductions_attempted", "deductions_successful",
+        "merges", "worklist_insertions", "worklist_removals",
+        "dilemma_branches", "dilemma_productive"
+      ],
+      "properties": {
+        "triples_processed": { "type": "integer", "minimum": 0 },
+        "deductions_attempted": { "type": "integer", "minimum": 0 },
+        "deductions_successful": { "type": "integer", "minimum": 0 },
+        "merges": { "type": "integer", "minimum": 0 },
+        "worklist_insertions": { "type": "integer", "minimum": 0 },
+        "worklist_removals": { "type": "integer", "minimum": 0 },
+        "dilemma_branches": { "type": "integer", "minimum": 0 },
+        "dilemma_productive": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "error": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["kind", "message"],
+      "properties": {
+        "kind": { "enum": ["parse", "invalid_input", "crash", "out_of_memory", "internal"] },
+        "message": { "type": "string" }
+      }
+    }
+  }
+}

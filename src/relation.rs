@@ -18,6 +18,22 @@ pub enum CanonicalRelation {
     Classes(Vec<(u32, bool)>),
 }
 
+impl std::fmt::Display for CanonicalRelation {
+    /// The one-line form of `triple-format.md` §4.
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            CanonicalRelation::Contradiction => write!(f, "contradiction"),
+            CanonicalRelation::Classes(classes) => {
+                write!(f, "classes")?;
+                for &(m, neg) in classes {
+                    write!(f, " {}", 2 * m + neg as u32)?;
+                }
+                Ok(())
+            }
+        }
+    }
+}
+
 /// Outcome of asserting one equivalence.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum Union {

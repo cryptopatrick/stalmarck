@@ -1,0 +1,100 @@
+stalmarck-triples 1
+nodes 96
+vars 32
+v 1 x1
+v 2 x2
+v 4 x3
+v 6 x4
+v 8 x5
+v 10 x6
+v 12 x7
+v 14 x8
+v 16 x9
+v 18 x10
+v 20 x11
+v 22 x12
+v 24 x13
+v 26 x14
+v 28 x15
+v 30 x16
+v 32 x17
+v 34 x18
+v 36 x19
+v 38 x20
+v 40 x21
+v 42 x22
+v 44 x23
+v 46 x24
+v 48 x25
+v 50 x26
+v 52 x27
+v 54 x28
+v 56 x29
+v 58 x30
+v 60 x31
+v 62 x32
+triples 63
+t eq 3 2 4
+t eq 5 6 8
+t eq 7 10 12
+t eq 9 14 16
+t eq 11 18 20
+t eq 13 22 24
+t eq 15 26 28
+t eq 17 30 32
+t eq 19 34 36
+t eq 21 38 40
+t eq 23 42 44
+t eq 25 46 48
+t eq 27 50 52
+t eq 29 54 56
+t eq 31 58 60
+t eq 33 62 64
+t eq 35 66 68
+t eq 37 70 72
+t eq 39 74 76
+t eq 41 78 80
+t eq 43 82 84
+t eq 45 86 88
+t eq 47 90 92
+t eq 49 94 96
+t eq 51 98 100
+t eq 53 102 104
+t eq 55 106 108
+t eq 57 110 112
+t eq 59 114 116
+t eq 61 118 120
+t eq 63 122 124
+t eq 64 120 124
+t eq 65 116 128
+t eq 66 112 130
+t eq 67 108 132
+t eq 68 104 134
+t eq 69 100 136
+t eq 70 96 138
+t eq 71 92 140
+t eq 72 88 142
+t eq 73 84 144
+t eq 74 80 146
+t eq 75 76 148
+t eq 76 72 150
+t eq 77 68 152
+t eq 78 64 154
+t eq 79 60 156
+t eq 80 56 158
+t eq 81 52 160
+t eq 82 48 162
+t eq 83 44 164
+t eq 84 40 166
+t eq 85 36 168
+t eq 86 32 170
+t eq 87 28 172
+t eq 88 24 174
+t eq 89 20 176
+t eq 90 16 178
+t eq 91 12 180
+t eq 92 8 182
+t eq 93 4 184
+t eq 94 2 186
+t eq 95 126 188
+root 191

@@ -1,0 +1,108 @@
+stalmarck-triples 1
+nodes 104
+vars 8
+v 1 x1
+v 2 x2
+v 3 x3
+v 4 x4
+v 5 x5
+v 6 x6
+v 7 x7
+v 8 x8
+triples 95
+t and 9 11 12
+t and 10 9 18
+t and 11 2 10
+t and 12 8 22
+t and 13 21 25
+t and 14 6 14
+t and 15 2 28
+t and 16 26 31
+t and 17 9 14
+t and 18 11 34
+t and 19 32 37
+t and 20 6 8
+t and 21 12 40
+t and 22 38 43
+t and 23 7 9
+t and 24 16 46
+t and 25 44 49
+t and 26 2 14
+t and 27 16 52
+t and 28 50 55
+t and 29 4 17
+t and 30 10 58
+t and 31 56 61
+t and 32 5 15
+t and 33 17 64
+t and 34 62 67
+t and 35 5 17
+t and 36 9 70
+t and 37 68 73
+t and 38 3 8
+t and 39 15 76
+t and 40 74 79
+t and 41 13 15
+t and 42 9 82
+t and 43 80 85
+t and 44 14 17
+t and 45 11 88
+t and 46 86 91
+t and 47 2 4
+t and 48 13 94
+t and 49 92 97
+t and 50 10 52
+t and 51 98 101
+t and 52 2 8
+t and 53 14 104
+t and 54 102 107
+t and 55 2 5
+t and 56 11 110
+t and 57 108 113
+t and 58 3 17
+t and 59 14 116
+t and 60 114 119
+t and 61 8 11
+t and 62 12 122
+t and 63 120 125
+t and 64 3 5
+t and 65 9 128
+t and 66 126 131
+t and 67 10 13
+t and 68 8 134
+t and 69 132 137
+t and 70 5 11
+t and 71 14 140
+t and 72 138 143
+t and 73 6 10
+t and 74 16 146
+t and 75 144 149
+t and 76 17 146
+t and 77 150 153
+t and 78 11 58
+t and 79 154 157
+t and 80 2 13
+t and 81 11 160
+t and 82 158 163
+t and 83 9 12
+t and 84 14 166
+t and 85 164 169
+t and 86 4 13
+t and 87 2 172
+t and 88 170 175
+t and 89 8 18
+t and 90 176 179
+t and 91 7 10
+t and 92 2 182
+t and 93 180 185
+t and 94 6 18
+t and 95 186 189
+t and 96 6 12
+t and 97 5 192
+t and 98 190 195
+t and 99 10 12
+t and 100 3 198
+t and 101 196 201
+t and 102 6 166
+t and 103 202 205
+root 206

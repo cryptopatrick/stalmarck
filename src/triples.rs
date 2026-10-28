@@ -3,7 +3,9 @@
 use std::collections::HashMap;
 use std::ops::Not;
 
+use crate::cnf::Cnf;
 use crate::formula::Formula;
+use crate::parse::ParseError;
 
 /// A literal: a node together with a polarity (SPEC-D2).
 ///
@@ -104,21 +106,35 @@ impl Triples {
     /// Decomposes `formula` (SPEC-D4). With `sharing`, identical
     /// subformulas, after normalization, share one triple (SPEC-D5).
     pub fn from_formula(formula: &Formula, sharing: bool) -> Triples {
-        let mut b = Builder {
-            node_count: 1,
-            variables: Vec::new(),
-            var_index: HashMap::new(),
-            triples: Vec::new(),
-            shared: HashMap::new(),
-            sharing,
-        };
+        let mut b = Builder::new(sharing);
         let root = b.lit(formula);
-        Triples {
-            node_count: b.node_count,
-            variables: b.variables,
-            triples: b.triples,
-            root,
+        b.finish(root)
+    }
+
+    /// Decomposes a CNF (`triple-format.md` §2): variable `i` is node `i`
+    /// and is named `x<i>`.
+    pub fn from_cnf(cnf: &Cnf, sharing: bool) -> Triples {
+        let mut b = Builder::new(sharing);
+        for i in 1..=cnf.variables {
+            b.var(&format!("x{i}"));
         }
+        let lit = |l: i32| Lit::new(l.unsigned_abs(), l < 0);
+        let mut root: Option<Lit> = None;
+        for clause in &cnf.clauses {
+            let mut c: Option<Lit> = None;
+            for &l in clause {
+                c = Some(match c {
+                    None => lit(l),
+                    Some(c) => !b.mk(TripleKind::And, !c, !lit(l)),
+                });
+            }
+            let c = c.unwrap_or(Lit::FALSE);
+            root = Some(match root {
+                None => c,
+                Some(r) => b.mk(TripleKind::And, r, c),
+            });
+        }
+        b.finish(root.unwrap_or(Lit::TRUE))
     }
 
     /// Number of nodes, including ⊤.
@@ -159,18 +175,181 @@ impl Triples {
         }
         val
     }
+
+    /// The `.tri` text form (`triple-format.md` §3).
+    pub fn to_text(&self) -> String {
+        let mut s = format!(
+            "stalmarck-triples 1\nnodes {}\nvars {}\n",
+            self.node_count,
+            self.variables.len()
+        );
+        for (name, node) in &self.variables {
+            s += &format!("v {node} {name}\n");
+        }
+        s += &format!("triples {}\n", self.triples.len());
+        for t in &self.triples {
+            let kind = match t.kind {
+                TripleKind::And => "and",
+                TripleKind::Eq => "eq",
+            };
+            s += &format!("t {kind} {} {} {}\n", t.out, t.a.0, t.b.0);
+        }
+        s += &format!("root {}\n", self.root.0);
+        s
+    }
+
+    /// Reads the `.tri` text form, checking its validity rules
+    /// (`triple-format.md` §3).
+    pub fn parse_text(src: &str) -> Result<Triples, ParseError> {
+        let mut lines = src
+            .lines()
+            .enumerate()
+            .map(|(i, l)| (i + 1, l.trim()))
+            .filter(|(_, l)| !l.is_empty() && !l.starts_with('#'));
+        let mut last = 1;
+        let mut next = |key: &str, arity: usize| {
+            let (n, l) = lines.next().ok_or_else(|| {
+                ParseError::new(last, 1, format!("missing '{key}' line"))
+            })?;
+            last = n;
+            let f: Vec<String> =
+                l.split_whitespace().map(str::to_string).collect();
+            if f.len() != arity + 1 || f[0] != key {
+                let m = format!("expected '{key}' with {arity} field(s)");
+                return Err(ParseError::new(n, 1, m));
+            }
+            Ok((n, f))
+        };
+        let num = |n: usize, s: &str| {
+            s.parse::<u32>().map_err(|_| {
+                ParseError::new(n, 1, format!("bad number '{s}'"))
+            })
+        };
+        let (n, f) = next("stalmarck-triples", 1)?;
+        if f[1] != "1" {
+            return Err(ParseError::new(n, 1, "unsupported version".into()));
+        }
+        let (n, f) = next("nodes", 1)?;
+        let nodes = num(n, &f[1])?;
+        if nodes == 0 || nodes >= 1 << 31 {
+            return Err(ParseError::new(n, 1, "bad node count".into()));
+        }
+        let mut defined = vec![false; nodes as usize];
+        defined[0] = true;
+        let mut define = |n: usize, v: u32| {
+            if v == 0 || v >= nodes || defined[v as usize] {
+                let m = format!("node {v} out of range or defined twice");
+                return Err(ParseError::new(n, 1, m));
+            }
+            defined[v as usize] = true;
+            Ok(())
+        };
+        let (n, f) = next("vars", 1)?;
+        let mut variables = Vec::new();
+        let mut names = std::collections::HashSet::new();
+        for _ in 0..num(n, &f[1])? {
+            let (n, f) = next("v", 2)?;
+            let v = num(n, &f[1])?;
+            define(n, v)?;
+            if variables.last().is_some_and(|&(_, u)| u >= v) {
+                let m = "variables must be in ascending node order";
+                return Err(ParseError::new(n, 1, m.into()));
+            }
+            if !names.insert(f[2].clone()) {
+                let m = format!("duplicate variable name '{}'", f[2]);
+                return Err(ParseError::new(n, 1, m));
+            }
+            variables.push((f[2].clone(), v));
+        }
+        let (n, f) = next("triples", 1)?;
+        let mut triples: Vec<Triple> = Vec::new();
+        for _ in 0..num(n, &f[1])? {
+            let (n, f) = next("t", 4)?;
+            let kind = match f[1].as_str() {
+                "and" => TripleKind::And,
+                "eq" => TripleKind::Eq,
+                k => {
+                    let m = format!("unknown triple kind '{k}'");
+                    return Err(ParseError::new(n, 1, m));
+                }
+            };
+            let (out, a, b) = (num(n, &f[2])?, num(n, &f[3])?, num(n, &f[4])?);
+            let (a, b) = (Lit(a), Lit(b));
+            define(n, out)?;
+            let bad = if triples.last().is_some_and(|t| t.out >= out) {
+                Some("triples must be in ascending output order")
+            } else if a.node() >= out || b.node() >= out {
+                Some("operand does not precede the output")
+            } else if a > b {
+                Some("operands must satisfy a <= b")
+            } else if kind == TripleKind::Eq
+                && (a.is_negated() || b.is_negated())
+            {
+                Some("eq operands must be positive")
+            } else {
+                None
+            };
+            if let Some(m) = bad {
+                return Err(ParseError::new(n, 1, m.into()));
+            }
+            triples.push(Triple { kind, out, a, b });
+        }
+        let (n, f) = next("root", 1)?;
+        let root = Lit(num(n, &f[1])?);
+        if root.node() >= nodes {
+            return Err(ParseError::new(n, 1, "root out of range".into()));
+        }
+        if let Some(v) = defined.iter().position(|d| !d) {
+            let m = format!("node {v} is never defined");
+            return Err(ParseError::new(n, 1, m));
+        }
+        if let Some((n, _)) = lines.next() {
+            return Err(ParseError::new(n, 1, "trailing content".into()));
+        }
+        Ok(Triples { node_count: nodes, variables, triples, root })
+    }
 }
 
-struct Builder<'f> {
+struct Builder {
     node_count: u32,
     variables: Vec<(String, u32)>,
-    var_index: HashMap<&'f str, u32>,
+    var_index: HashMap<String, u32>,
     triples: Vec<Triple>,
     shared: HashMap<(TripleKind, Lit, Lit), Lit>,
     sharing: bool,
 }
 
-impl<'f> Builder<'f> {
+impl Builder {
+    fn new(sharing: bool) -> Builder {
+        Builder {
+            node_count: 1,
+            variables: Vec::new(),
+            var_index: HashMap::new(),
+            triples: Vec::new(),
+            shared: HashMap::new(),
+            sharing,
+        }
+    }
+
+    fn finish(self, root: Lit) -> Triples {
+        Triples {
+            node_count: self.node_count,
+            variables: self.variables,
+            triples: self.triples,
+            root,
+        }
+    }
+
+    fn var(&mut self, name: &str) -> Lit {
+        if let Some(&n) = self.var_index.get(name) {
+            return Lit::new(n, false);
+        }
+        let n = self.fresh();
+        self.var_index.insert(name.to_string(), n);
+        self.variables.push((name.to_string(), n));
+        Lit::new(n, false)
+    }
+
     fn fresh(&mut self) -> u32 {
         let n = self.node_count;
         self.node_count =
@@ -178,41 +357,21 @@ impl<'f> Builder<'f> {
         n
     }
 
-    fn lit(&mut self, f: &'f Formula) -> Lit {
-        match f {
+    /// SPEC-D4, as a post-order fold (no recursion).
+    fn lit(&mut self, f: &Formula) -> Lit {
+        f.fold(|node, args: &[Lit]| match node {
             Formula::Const(true) => Lit::TRUE,
             Formula::Const(false) => Lit::FALSE,
-            Formula::Var(name) => {
-                if let Some(&n) = self.var_index.get(name.as_str()) {
-                    return Lit::new(n, false);
-                }
-                let n = self.fresh();
-                self.var_index.insert(name, n);
-                self.variables.push((name.clone(), n));
-                Lit::new(n, false)
+            Formula::Var(name) => self.var(name),
+            Formula::Not(_) => !args[0],
+            Formula::And(..) => self.mk(TripleKind::And, args[0], args[1]),
+            Formula::Or(..) => !self.mk(TripleKind::And, !args[0], !args[1]),
+            Formula::Implies(..) => {
+                !self.mk(TripleKind::And, args[0], !args[1])
             }
-            Formula::Not(g) => !self.lit(g),
-            Formula::And(g, h) => {
-                let (a, b) = (self.lit(g), self.lit(h));
-                self.mk(TripleKind::And, a, b)
-            }
-            Formula::Or(g, h) => {
-                let (a, b) = (self.lit(g), self.lit(h));
-                !self.mk(TripleKind::And, !a, !b)
-            }
-            Formula::Implies(g, h) => {
-                let (a, b) = (self.lit(g), self.lit(h));
-                !self.mk(TripleKind::And, a, !b)
-            }
-            Formula::Iff(g, h) => {
-                let (a, b) = (self.lit(g), self.lit(h));
-                self.mk(TripleKind::Eq, a, b)
-            }
-            Formula::Xor(g, h) => {
-                let (a, b) = (self.lit(g), self.lit(h));
-                !self.mk(TripleKind::Eq, a, b)
-            }
-        }
+            Formula::Iff(..) => self.mk(TripleKind::Eq, args[0], args[1]),
+            Formula::Xor(..) => !self.mk(TripleKind::Eq, args[0], args[1]),
+        })
     }
 
     /// SPEC-D5: EQ operand signs move to the output, operands are sorted,

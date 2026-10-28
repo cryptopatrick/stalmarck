@@ -19,6 +19,11 @@ jobs:
       - run: cargo fmt --all --check
       - run: cargo clippy --all-targets -- -D warnings
       - run: cargo test --all-targets
+      # The shared test vectors must be exactly reproducible.
+      - name: Regenerate test vectors and compare
+        run: |
+          cargo run --release --example gen_vectors -- "$RUNNER_TEMP/vectors"
+          diff -r shared/test-vectors "$RUNNER_TEMP/vectors"
 
   package:
     runs-on: ubuntu-latest

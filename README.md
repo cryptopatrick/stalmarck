@@ -38,6 +38,10 @@ This crate follows the procedure of M. Sheeran and G. Stålmarck,
 - Configurable Dilemma depth, structural sharing, branch limit and timeout.
 - Solver counters, and a canonical form of the final relation for
   differential testing.
+- Input as Rust values, as text (`"a & (b | c) -> d".parse()`), or as
+  DIMACS CNF. A documented triple-file format is shared with other
+  implementations.
+- Seeded instance generators and a truth-table oracle for testing.
 - Pure safe Rust with no dependencies.
 
 ## Quick Start
@@ -72,7 +76,7 @@ counters.
 
 `0.1` is the sequential, pure-Rust reference implementation. Planned:
 
-- a formula and DIMACS parser and a CLI;
+- a CLI with JSON output;
 - a rollback-trail branch state;
 - optional parallel branch exploration;
 - a Rust + Scryer Prolog variant behind the `scryer` feature.

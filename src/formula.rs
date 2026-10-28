@@ -1,5 +1,6 @@
 //! Propositional formulas (formal specification §2).
 
+use std::collections::HashSet;
 use std::fmt;
 use std::ops::{BitAnd, BitOr, BitXor, Not};
 
@@ -73,43 +74,103 @@ impl Formula {
 
     /// Evaluates the formula, looking up variables with `value`.
     pub fn evaluate<F: Fn(&str) -> bool>(&self, value: &F) -> bool {
-        match self {
+        self.fold(|f, args: &[bool]| match f {
             Formula::Const(c) => *c,
             Formula::Var(name) => value(name),
-            Formula::Not(f) => !f.evaluate(value),
-            Formula::And(f, g) => f.evaluate(value) && g.evaluate(value),
-            Formula::Or(f, g) => f.evaluate(value) || g.evaluate(value),
-            Formula::Implies(f, g) => !f.evaluate(value) || g.evaluate(value),
-            Formula::Iff(f, g) => f.evaluate(value) == g.evaluate(value),
-            Formula::Xor(f, g) => f.evaluate(value) != g.evaluate(value),
-        }
+            Formula::Not(_) => !args[0],
+            Formula::And(..) => args[0] && args[1],
+            Formula::Or(..) => args[0] || args[1],
+            Formula::Implies(..) => !args[0] || args[1],
+            Formula::Iff(..) => args[0] == args[1],
+            Formula::Xor(..) => args[0] != args[1],
+        })
     }
 
     /// The distinct variable names, in order of first occurrence
     /// (left to right).
     pub fn variables(&self) -> Vec<&str> {
+        let mut seen = HashSet::new();
         let mut out = Vec::new();
-        self.collect_variables(&mut out);
+        let mut todo = vec![self];
+        while let Some(f) = todo.pop() {
+            if let Formula::Var(name) = f
+                && seen.insert(name.as_str())
+            {
+                out.push(name.as_str());
+            }
+            let [l, r] = f.children();
+            todo.extend(r);
+            todo.extend(l);
+        }
         out
     }
 
-    fn collect_variables<'a>(&'a self, out: &mut Vec<&'a str>) {
+    /// The operands, left first.
+    fn children(&self) -> [Option<&Formula>; 2] {
         match self {
-            Formula::Const(_) => {}
-            Formula::Var(name) => {
-                if !out.contains(&name.as_str()) {
-                    out.push(name);
-                }
+            Formula::Const(_) | Formula::Var(_) => [None, None],
+            Formula::Not(g) => [Some(g), None],
+            Formula::And(l, r)
+            | Formula::Or(l, r)
+            | Formula::Implies(l, r)
+            | Formula::Iff(l, r)
+            | Formula::Xor(l, r) => [Some(l), Some(r)],
+        }
+    }
+
+    /// Post-order fold without recursion, so that deeply nested formulas
+    /// cannot overflow the stack. `f` gets each node and its operands'
+    /// results, left first.
+    pub(crate) fn fold<'a, T>(
+        &'a self,
+        mut f: impl FnMut(&'a Formula, &[T]) -> T,
+    ) -> T {
+        let mut todo = vec![(self, false)];
+        let mut values: Vec<T> = Vec::new();
+        while let Some((node, expanded)) = todo.pop() {
+            let [l, r] = node.children();
+            if !expanded && l.is_some() {
+                todo.push((node, true));
+                todo.extend(r.map(|r| (r, false)));
+                todo.extend(l.map(|l| (l, false)));
+                continue;
             }
-            Formula::Not(f) => f.collect_variables(out),
-            Formula::And(f, g)
-            | Formula::Or(f, g)
-            | Formula::Implies(f, g)
-            | Formula::Iff(f, g)
-            | Formula::Xor(f, g) => {
-                f.collect_variables(out);
-                g.collect_variables(out);
+            let start =
+                values.len() - l.is_some() as usize - r.is_some() as usize;
+            let v = f(node, &values[start..]);
+            values.truncate(start);
+            values.push(v);
+        }
+        values.pop().expect("fold produces one value")
+    }
+
+    /// Moves the operands out, leaving constants behind.
+    fn take_children(&mut self, out: &mut Vec<Formula>) {
+        let take = |b: &mut Box<Formula>| {
+            std::mem::replace(&mut **b, Formula::Const(false))
+        };
+        match self {
+            Formula::Const(_) | Formula::Var(_) => {}
+            Formula::Not(g) => out.push(take(g)),
+            Formula::And(l, r)
+            | Formula::Or(l, r)
+            | Formula::Implies(l, r)
+            | Formula::Iff(l, r)
+            | Formula::Xor(l, r) => {
+                out.push(take(l));
+                out.push(take(r));
             }
+        }
+    }
+}
+
+impl Drop for Formula {
+    /// Drops iteratively, so that deep formulas cannot overflow the stack.
+    fn drop(&mut self) {
+        let mut todo = Vec::new();
+        self.take_children(&mut todo);
+        while let Some(mut f) = todo.pop() {
+            f.take_children(&mut todo);
         }
     }
 }
@@ -147,18 +208,47 @@ impl BitXor for Formula {
 }
 
 impl fmt::Display for Formula {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let (op, l, r) = match self {
-            Formula::Const(true) => return write!(f, "T"),
-            Formula::Const(false) => return write!(f, "F"),
-            Formula::Var(name) => return write!(f, "{name}"),
-            Formula::Not(g) => return write!(f, "!{g}"),
-            Formula::And(l, r) => ("&", l, r),
-            Formula::Or(l, r) => ("|", l, r),
-            Formula::Implies(l, r) => ("->", l, r),
-            Formula::Iff(l, r) => ("<->", l, r),
-            Formula::Xor(l, r) => ("^", l, r),
-        };
-        write!(f, "({l} {op} {r})")
+    /// Fully parenthesized `.prop` syntax (`triple-format.md` §1.2).
+    fn fmt(&self, out: &mut fmt::Formatter<'_>) -> fmt::Result {
+        enum Piece<'a> {
+            Formula(&'a Formula),
+            Text(&'static str),
+        }
+        let mut todo = vec![Piece::Formula(self)];
+        while let Some(piece) = todo.pop() {
+            let f = match piece {
+                Piece::Text(s) => {
+                    out.write_str(s)?;
+                    continue;
+                }
+                Piece::Formula(f) => f,
+            };
+            let (l, op, r) = match f {
+                Formula::Const(c) => {
+                    out.write_str(if *c { "T" } else { "F" })?;
+                    continue;
+                }
+                Formula::Var(name) => {
+                    out.write_str(name)?;
+                    continue;
+                }
+                Formula::Not(g) => {
+                    out.write_str("!")?;
+                    todo.push(Piece::Formula(g));
+                    continue;
+                }
+                Formula::And(l, r) => (l, " & ", r),
+                Formula::Or(l, r) => (l, " | ", r),
+                Formula::Implies(l, r) => (l, " -> ", r),
+                Formula::Iff(l, r) => (l, " <-> ", r),
+                Formula::Xor(l, r) => (l, " ^ ", r),
+            };
+            out.write_str("(")?;
+            todo.push(Piece::Text(")"));
+            todo.push(Piece::Formula(r));
+            todo.push(Piece::Text(op));
+            todo.push(Piece::Formula(l));
+        }
+        Ok(())
     }
 }

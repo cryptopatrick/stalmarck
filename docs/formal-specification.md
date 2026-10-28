@@ -556,9 +556,10 @@ SPEC-C1. The remaining open items (§13) do not affect inference semantics.
 
 ## 13. Open items (non-blocking)
 
-1. Concrete syntax, precedence, DIMACS mapping and node numbering go into
-   `triple-format.md` (Phase 1).
-2. A JSON result schema (PRD §34) is due in Phase 1.
+1. ~~Concrete syntax, precedence, DIMACS mapping and node numbering.~~
+   Done in M1: `triple-format.md`.
+2. ~~A JSON result schema (PRD §34).~~ Done in M1:
+   `shared/schemas/result-v1.schema.json`.
 3. Whether to add EQ-based branching (`A ≡ B`) as a Track B experiment.
 4. Consult [Pat] and [Har96] to confirm the description in §1.1(2). This is for
    the final report only. It does not change the selected formulation.

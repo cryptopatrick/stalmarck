@@ -1,0 +1,167 @@
+stalmarck-triples 1
+nodes 163
+vars 12
+v 1 x1
+v 2 x2
+v 3 x3
+v 4 x4
+v 5 x5
+v 6 x6
+v 7 x7
+v 8 x8
+v 9 x9
+v 10 x10
+v 11 x11
+v 12 x12
+triples 150
+t and 13 16 21
+t and 14 24 26
+t and 15 7 20
+t and 16 15 30
+t and 17 29 33
+t and 18 3 25
+t and 19 19 36
+t and 20 34 39
+t and 21 4 8
+t and 22 21 42
+t and 23 40 45
+t and 24 22 24
+t and 25 18 48
+t and 26 46 51
+t and 27 5 24
+t and 28 16 54
+t and 29 52 57
+t and 30 2 19
+t and 31 24 60
+t and 32 58 63
+t and 33 11 13
+t and 34 25 66
+t and 35 64 69
+t and 36 3 16
+t and 37 10 72
+t and 38 70 75
+t and 39 2 6
+t and 40 17 78
+t and 41 76 81
+t and 42 10 42
+t and 43 82 85
+t and 44 6 11
+t and 45 13 88
+t and 46 86 91
+t and 47 4 19
+t and 48 24 94
+t and 49 92 97
+t and 50 2 9
+t and 51 10 100
+t and 52 98 103
+t and 53 6 19
+t and 54 12 106
+t and 55 104 109
+t and 56 19 22
+t and 57 14 112
+t and 58 110 115
+t and 59 7 8
+t and 60 11 118
+t and 61 116 121
+t and 62 7 23
+t and 63 8 124
+t and 64 122 127
+t and 65 14 21
+t and 66 17 130
+t and 67 128 133
+t and 68 2 20
+t and 69 16 136
+t and 70 134 139
+t and 71 9 23
+t and 72 24 142
+t and 73 140 145
+t and 74 16 22
+t and 75 11 148
+t and 76 146 151
+t and 77 16 20
+t and 78 10 154
+t and 79 152 157
+t and 80 13 25
+t and 81 4 160
+t and 82 158 163
+t and 83 15 20
+t and 84 13 166
+t and 85 164 169
+t and 86 8 13
+t and 87 16 172
+t and 88 170 175
+t and 89 8 19
+t and 90 6 178
+t and 91 176 181
+t and 92 12 22
+t and 93 15 184
+t and 94 182 187
+t and 95 3 18
+t and 96 9 190
+t and 97 188 193
+t and 98 6 12
+t and 99 23 196
+t and 100 194 199
+t and 101 16 18
+t and 102 11 202
+t and 103 200 205
+t and 104 7 21
+t and 105 18 208
+t and 106 206 211
+t and 107 13 19
+t and 108 5 214
+t and 109 212 217
+t and 110 9 21
+t and 111 19 220
+t and 112 218 223
+t and 113 9 10
+t and 114 24 226
+t and 115 224 229
+t and 116 11 21
+t and 117 22 232
+t and 118 230 235
+t and 119 6 23
+t and 120 10 238
+t and 121 236 241
+t and 122 3 7
+t and 123 22 244
+t and 124 242 247
+t and 125 8 12
+t and 126 24 250
+t and 127 248 253
+t and 128 9 15
+t and 129 20 256
+t and 130 254 259
+t and 131 2 22
+t and 132 13 262
+t and 133 260 265
+t and 134 13 24
+t and 135 3 268
+t and 136 266 271
+t and 137 9 19
+t and 138 15 274
+t and 139 272 277
+t and 140 12 23
+t and 141 5 280
+t and 142 278 283
+t and 143 13 15
+t and 144 4 286
+t and 145 284 289
+t and 146 12 18
+t and 147 14 292
+t and 148 290 295
+t and 149 3 20
+t and 150 17 298
+t and 151 296 301
+t and 152 5 12
+t and 153 16 304
+t and 154 302 307
+t and 155 3 10
+t and 156 16 310
+t and 157 308 313
+t and 158 12 14
+t and 159 16 316
+t and 160 314 319
+t and 161 11 286
+t and 162 320 323
+root 324

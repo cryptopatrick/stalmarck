@@ -33,14 +33,20 @@
 #![forbid(unsafe_code)]
 #![warn(missing_docs)]
 
+mod cnf;
 mod formula;
+pub mod generate;
+pub mod oracle;
+mod parse;
 mod relation;
 mod rules;
 mod saturate;
 mod solver;
 mod triples;
 
+pub use cnf::Cnf;
 pub use formula::Formula;
+pub use parse::ParseError;
 pub use relation::CanonicalRelation;
 pub use saturate::Stats;
 pub use solver::{

@@ -1,4 +1,18 @@
 ## Unreleased
+ - `.prop` formula syntax: `Formula: FromStr`, with the precedence
+   `! & ^ | -> <->` and keyword spellings.
+ - DIMACS CNF input (`Cnf`), and `Triples::from_cnf`.
+ - The `.tri` triple file format: `Triples::to_text` and
+   `Triples::parse_text`, which checks validity.
+ - Canonical relations print as `contradiction` or `classes …`.
+ - `generate`: seeded instance generators (random formulas, random k-CNF,
+   pigeonhole, parity, implication chains).
+ - `oracle`: truth-table satisfiability oracles.
+ - Parsing, printing, evaluation, decomposition and dropping no longer
+   recurse, so deeply nested formulas (tested at 100 000 levels) cannot
+   overflow the stack. *Note*: `Formula` now implements `Drop`, so its
+   fields can no longer be moved out by pattern matching. Match on a
+   reference instead. *Breaking*
 
 ## v0.1.0 - 2026-10-28
  - First release: a sequential pure-Rust implementation of Stålmarck's proof
