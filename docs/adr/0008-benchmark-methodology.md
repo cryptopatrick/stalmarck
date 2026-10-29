@@ -1,6 +1,8 @@
 # ADR-0008: Benchmark methodology
 
-Status: Proposed. Detailed in `_bench/` during Phase 6 (amendment A4).
+Status: Accepted (Phase 6). Implemented in the git-ignored `_bench/`: a
+corpus generator, `runner/run.py` and `runner/summarize.py` (amendment A4).
+A pilot run was made on 2026-10-29.
 
 ## Decision (framework)
 * **Two tracks, never mixed (PRD §39):**
@@ -31,3 +33,21 @@ Status: Proposed. Detailed in `_bench/` during Phase 6 (amendment A4).
 ## Consequences
 The runner (PRD §46) is a Rust binary or a Python script inside `_bench/`. It
 is never part of the published crate.
+
+## Phase 6 notes (implementation and pilot)
+
+* **Runner** (Python, standard library only): environment capture, a Rust
+  reference pass per instance, per-implementation cost budgets (`max_ref_ms`)
+  and repetitions, seeded randomized interleaving, peak RSS from `wait4`,
+  wall-clock timeouts (SIGKILL) for every implementation, and the
+  correctness gate. Relations and counters are compared with the Rust
+  reference.
+* **Corpus v1:** 52 instances across PRD §40 families A–G, generated
+  deterministically from the crate's `generate` module.
+* **Pilot result:** 1 909 measured runs. Every completed run passed the gate
+  and matched the Rust reference's relation and counters. The 4 failed runs
+  were a Bend stack overflow on Metal, since fixed. Indicative medians:
+  Bend seq is 67× Rust's solver-only time (47× against Rust with the same
+  full-merge strategy), Scryer is about 2 500×, and Bend's parallel
+  branches give 1.08× on 4 threads. Metal is 100–1 000× slower than one Bend
+  CPU thread.
