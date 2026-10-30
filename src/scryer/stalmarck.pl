@@ -194,39 +194,107 @@ pairs([N|Ns], Ps) :-
     pairs(Ns, Ps1),
     append(Ps0, Ps1, Ps).
 
-consistent(_, [], _).
-consistent(UF, [N-M|Ps], Vals) :-
+% The known relation of each pair: 0 if unrelated, else 1 + the parity.
+pair_codes([], _, []).
+pair_codes([N-M|Ps], UF, [C|Cs]) :-
     (   related(UF, N, M, P)
-    ->  memberchk(N-XN, Vals),
-        memberchk(M-XM, Vals),
-        P =:= xor(XN, XM)
-    ;   true
+    ->  C is P + 1
+    ;   C = 0
     ),
-    consistent(UF, Ps, Vals).
+    pair_codes(Ps, UF, Cs).
+
+known([], [], []).
+known([P|Ps], [C|Cs], [P-C|Ks]) :- known(Ps, Cs, Ks).
+
+consistent([], _).
+consistent([(N-M)-C|Ps], Vals) :-
+    (   C =:= 0
+    ->  true
+    ;   memberchk(N-XN, Vals),
+        memberchk(M-XM, Vals),
+        C =:= xor(XN, XM) + 1
+    ),
+    consistent(Ps, Vals).
+
+% The result of a local closure depends only on the triple's shape and the
+% relation among its nodes, so it is computed once per pattern, on positions
+% in the sorted node list, and cached (PRD §25). The results are the same as
+% enumerating every time, in the same order: positions ascend with nodes.
+:- dynamic(memo/2).
 
 % local_closure(+UF, +Triple, -Derived): Derived is `contradiction`, or the
 % new equivalences LitA-LitB in ascending node-pair order.
 local_closure(UF, t(Kind, O, A, B), Derived) :-
     NA is A >> 1,
     NB is B >> 1,
-    sort([0, O, NA, NB], [0|Free]),
+    sort([0, O, NA, NB], Nodes),
+    pairs(Nodes, Pairs),
+    pair_codes(Pairs, UF, Codes),
+    position(Nodes, O, 0, PO),
+    position(Nodes, NA, 0, PA0),
+    position(Nodes, NB, 0, PB0),
+    PA is PA0 * 2 + (A /\ 1),
+    PB is PB0 * 2 + (B /\ 1),
+    length(Nodes, Len),
+    pattern_key(Codes, Kind, Len, PO, PA, PB, Key),
+    (   memo(Key, R0)
+    ->  R = R0
+    ;   closure_on_positions(Kind, Len, Codes, PO, PA, PB, R),
+        assertz(memo(Key, R))
+    ),
+    to_nodes(R, Nodes, Derived).
+
+position([N|Ns], V, I0, I) :-
+    (   N =:= V
+    ->  I = I0
+    ;   I1 is I0 + 1,
+        position(Ns, V, I1, I)
+    ).
+
+kind_bit(and, 0).
+kind_bit(eq, 1).
+
+% Fixed-width fields, so patterns of different sizes cannot collide.
+pattern_key(Codes, Kind, Len, PO, PA, PB, Key) :-
+    kind_bit(Kind, K),
+    foldl(add_code, Codes, 0, Rel),
+    Key is (Rel << 12) \/ (Len << 9) \/ (K << 8) \/ (PO << 6)
+         \/ (PA << 3) \/ PB.
+
+add_code(C, K0, K) :- K is K0 * 3 + C.
+
+closure_on_positions(Kind, Len, Codes, O, A, B, R) :-
+    Last is Len - 1,
+    findall(I, between(1, Last, I), Free),
     pairs([0|Free], Pairs),
+    known(Pairs, Codes, Known),
     findall(Vals,
             ( bits(Free, Vs),
               Vals = [0-1|Vs],
               holds(Kind, Vals, O, A, B),
-              consistent(UF, Pairs, Vals) ),
+              consistent(Known, Vals) ),
             Models),
     (   Models == []
-    ->  Derived = contradiction
+    ->  R = contradiction
     ;   findall(LN-LM,
-                ( member(N-M, Pairs),
-                  \+ related(UF, N, M, _),
+                ( member((N-M)-0, Known),
                   common_parity(Models, N, M, P),
                   LN is N * 2,
                   LM is M * 2 + P ),
-                Derived)
+                R)
     ).
+
+to_nodes(contradiction, _, contradiction).
+to_nodes([], _, []).
+to_nodes([LN-LM|Ls], Nodes, [DN-DM|Ds]) :-
+    to_node(LN, Nodes, DN),
+    to_node(LM, Nodes, DM),
+    to_nodes(Ls, Nodes, Ds).
+
+to_node(L, Nodes, D) :-
+    I is L >> 1,
+    nth0(I, Nodes, N),
+    D is N * 2 + (L /\ 1).
 
 common_parity([Vals|Vss], N, M, P) :-
     memberchk(N-XN, Vals),

@@ -13,12 +13,12 @@ error-prone step (PRD §11).
 2. **Key grouping (SPEC-R6).** Use the key `κ(v) = (r₁(v), r₂(v), p₁⊕p₂)`.
    This is O(N) with hashing.
 3. **Delta grouping.** Apply key grouping only to the nodes whose class
-   changed in at least one branch since the checkpoint. A node that changed in
-   neither branch keeps its parent class.
+   changed in both branches since the checkpoint. A node unchanged in either
+   branch keeps its parent class.
 
 ## Decision
-Use option 3 in implementations that have a trail (Rust A). Use option 2 in
-the others. Option 1 is the property-test oracle (P6).
+Use option 3 in implementations that have a trail (Rust A, and Bend since
+ADR-0009). Use option 2 in the others. Option 1 is the property-test oracle (P6).
 
 To install the merge into the parent: for each group that contains two or
 more parent classes, union them in ascending `(min node)` order with the
