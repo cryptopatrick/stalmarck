@@ -446,14 +446,19 @@ load_class(c(N, M, P), UF0, UF) :-
     LN is N * 2 + P,
     union(UF0, LM, LN, _, UF, _).
 
+% Only nodes in merged classes are listed, so the live merged roots are
+% enough: a scan of all nodes costs more than the branch on sparse relations.
 canonical(UF, Classes) :-
-    nnodes(N),
-    Last is N - 1,
+    UF = uf(Par, _, _, Mem, _),
+    assoc_to_keys(Mem, Roots),
     findall(c(V, M, P),
-            ( between(0, Last, V),
-              find(UF, V, R, PV),
+            ( member(R, Roots),
+              \+ get_assoc(R, Par, _),
               min(UF, R, M),
-              M =\= V,
+              members(UF, R, Vs),
               find(UF, M, _, PM),
+              member(V, Vs),
+              V =\= M,
+              find(UF, V, _, PV),
               P is xor(PV, PM) ),
             Classes).
