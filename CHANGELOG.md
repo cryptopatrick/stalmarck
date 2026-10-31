@@ -1,4 +1,6 @@
 ## Unreleased
+
+## v0.4.0 - 2026-10-31
  - *Breaking*: `Config`, `Stats`, `Timing`, `Report`, `ParseError`, `Unknown`
    and `BranchState` are `#[non_exhaustive]`, so later additions need no
    breaking release. To migrate, replace
