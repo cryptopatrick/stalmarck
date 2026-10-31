@@ -59,7 +59,7 @@ let (a, b, c) = (Formula::var("a"), Formula::var("b"), Formula::var("c"));
 // (a ∧ b) ∨ (a ∧ c) → a ∧ (b ∨ c) is valid, with hardness 1.
 let f = ((a.clone() & b.clone()) | (a.clone() & c.clone()))
     .implies(a.clone() & (b.clone() | c));
-let solver = Solver::new(Config { max_depth: 1, ..Config::default() });
+let solver = Solver::new(Config::default().with_max_depth(1));
 assert_eq!(solver.prove(&f).result, ProofResult::Valid);
 
 // a ∧ ¬b is satisfiable.

@@ -2,6 +2,7 @@
 //! specification §9).
 
 use std::collections::BTreeMap;
+use std::fmt;
 use std::time::{Duration, Instant};
 
 use crate::formula::Formula;
@@ -11,8 +12,17 @@ use crate::saturate::{
 };
 use crate::triples::Triples;
 
-/// Solver configuration.
+/// Solver configuration. Start from [`Config::default`] and adjust it with
+/// the `with_*` methods:
+///
+/// ```
+/// use stalmarck::{Config, Solver};
+///
+/// let solver = Solver::new(Config::default().with_max_depth(1));
+/// assert_eq!(solver.config().max_depth, 1);
+/// ```
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct Config {
     /// Maximum Dilemma nesting depth `k` (SPEC-K4). Default: 2.
     pub max_depth: u32,
@@ -40,6 +50,43 @@ impl Default for Config {
     }
 }
 
+impl Config {
+    /// Sets [`max_depth`](Config::max_depth).
+    #[must_use]
+    pub fn with_max_depth(mut self, max_depth: u32) -> Config {
+        self.max_depth = max_depth;
+        self
+    }
+
+    /// Sets [`sharing`](Config::sharing).
+    #[must_use]
+    pub fn with_sharing(mut self, sharing: bool) -> Config {
+        self.sharing = sharing;
+        self
+    }
+
+    /// Sets [`max_branches`](Config::max_branches).
+    #[must_use]
+    pub fn with_max_branches(mut self, max_branches: u64) -> Config {
+        self.max_branches = Some(max_branches);
+        self
+    }
+
+    /// Sets [`timeout`](Config::timeout).
+    #[must_use]
+    pub fn with_timeout(mut self, timeout: Duration) -> Config {
+        self.timeout = Some(timeout);
+        self
+    }
+
+    /// Sets [`branch_state`](Config::branch_state).
+    #[must_use]
+    pub fn with_branch_state(mut self, branch_state: BranchState) -> Config {
+        self.branch_state = branch_state;
+        self
+    }
+}
+
 /// An assignment of truth values to the input variables.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct Model(BTreeMap<String, bool>);
@@ -49,7 +96,20 @@ impl Model {
         Model(map)
     }
 
+    /// The number of variables.
+    #[must_use]
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    /// Whether the model assigns no variables.
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+
     /// The value of `variable`, if it occurs in the formula.
+    #[must_use]
     pub fn get(&self, variable: &str) -> Option<bool> {
         self.0.get(variable).copied()
     }
@@ -61,7 +121,8 @@ impl Model {
 }
 
 /// Why no definite answer was reached.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum Unknown {
     /// Saturation to `max_depth` finished without a contradiction or a
     /// complete assignment.
@@ -73,6 +134,22 @@ pub enum Unknown {
     /// An assignment was found but failed verification. This indicates a
     /// bug, and should be reported.
     ModelCheckFailed,
+    /// The back end failed, with its error message. The relation in the
+    /// report is the sound one from before the failure. This indicates a
+    /// bug, and should be reported.
+    BackendError(String),
+}
+
+impl fmt::Display for Unknown {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Unknown::DepthExhausted => f.write_str("depth exhausted"),
+            Unknown::BranchLimit => f.write_str("branch limit reached"),
+            Unknown::Timeout => f.write_str("timed out"),
+            Unknown::ModelCheckFailed => f.write_str("model check failed"),
+            Unknown::BackendError(e) => write!(f, "back end failed: {e}"),
+        }
+    }
 }
 
 /// Answer to "is the formula satisfiable?".
@@ -86,6 +163,29 @@ pub enum SatResult {
     Unknown(Unknown),
 }
 
+impl SatResult {
+    /// Whether the formula is satisfiable.
+    #[must_use]
+    pub fn is_sat(&self) -> bool {
+        matches!(self, SatResult::Sat(_))
+    }
+
+    /// Whether the formula is unsatisfiable.
+    #[must_use]
+    pub fn is_unsat(&self) -> bool {
+        matches!(self, SatResult::Unsat)
+    }
+
+    /// The satisfying model, if there is one.
+    #[must_use]
+    pub fn model(&self) -> Option<&Model> {
+        match self {
+            SatResult::Sat(m) => Some(m),
+            SatResult::Unsat | SatResult::Unknown(_) => None,
+        }
+    }
+}
+
 /// Answer to "is the formula valid?".
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum ProofResult {
@@ -97,8 +197,32 @@ pub enum ProofResult {
     Unknown(Unknown),
 }
 
+impl ProofResult {
+    /// Whether the formula is valid.
+    #[must_use]
+    pub fn is_valid(&self) -> bool {
+        matches!(self, ProofResult::Valid)
+    }
+
+    /// Whether the formula is not valid.
+    #[must_use]
+    pub fn is_invalid(&self) -> bool {
+        matches!(self, ProofResult::Invalid(_))
+    }
+
+    /// The counter-model, if there is one.
+    #[must_use]
+    pub fn counter_model(&self) -> Option<&Model> {
+        match self {
+            ProofResult::Invalid(m) => Some(m),
+            ProofResult::Valid | ProofResult::Unknown(_) => None,
+        }
+    }
+}
+
 /// A result together with counters and the final relation.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct Report<R> {
     /// The answer.
     pub result: R,
@@ -113,6 +237,7 @@ pub struct Report<R> {
 
 /// Wall-clock time spent in the solver (ADR-0008 boundaries).
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct Timing {
     /// Building indexes and the initial relation.
     pub init: Duration,
@@ -177,16 +302,19 @@ pub struct Solver {
 
 impl Solver {
     /// A solver with `config`.
+    #[must_use]
     pub fn new(config: Config) -> Solver {
         Solver { config }
     }
 
     /// The configuration.
+    #[must_use]
     pub fn config(&self) -> &Config {
         &self.config
     }
 
     /// Decides satisfiability of `formula`.
+    #[must_use]
     pub fn check_sat(&self, formula: &Formula) -> Report<SatResult> {
         self.check_sat_triples(&Triples::from_formula(
             formula,
@@ -195,6 +323,7 @@ impl Solver {
     }
 
     /// Decides validity of `formula`.
+    #[must_use]
     pub fn prove(&self, formula: &Formula) -> Report<ProofResult> {
         self.prove_triples(&Triples::from_formula(
             formula,
@@ -204,12 +333,14 @@ impl Solver {
 
     /// Decides satisfiability of an already decomposed formula. The
     /// `sharing` option is ignored.
+    #[must_use]
     pub fn check_sat_triples(&self, triples: &Triples) -> Report<SatResult> {
         sat_report(self.run(triples, true, None))
     }
 
     /// Decides validity of an already decomposed formula. The `sharing`
     /// option is ignored.
+    #[must_use]
     pub fn prove_triples(&self, triples: &Triples) -> Report<ProofResult> {
         proof_report(self.run(triples, false, None))
     }
@@ -255,6 +386,7 @@ impl Solver {
             Raw::Unknown(match limit {
                 Some(Limit::Branches) => Unknown::BranchLimit,
                 Some(Limit::Time) => Unknown::Timeout,
+                Some(Limit::Backend(e)) => Unknown::BackendError(e),
                 None => Unknown::DepthExhausted,
             })
         };

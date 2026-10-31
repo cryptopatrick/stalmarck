@@ -5,7 +5,7 @@ use stalmarck::scryer::ScryerSolver;
 use stalmarck::{Config, Formula, Solver, Triples, generate};
 
 fn config(k: u32) -> Config {
-    Config { max_depth: k, ..Config::default() }
+    Config::default().with_max_depth(k)
 }
 
 fn agree(f: &Formula, cfg: Config) {
@@ -66,14 +66,7 @@ fn random_cnf_and_pigeonhole() {
 fn branch_limits_agree() {
     let f = generate::parity_mismatch(6);
     for max in [0, 1, 3, 10, 40] {
-        agree(
-            &f,
-            Config {
-                max_depth: 2,
-                max_branches: Some(max),
-                ..Config::default()
-            },
-        );
+        agree(&f, Config::default().with_max_depth(2).with_max_branches(max));
     }
 }
 
@@ -101,4 +94,25 @@ fn shared_vectors_agree() {
         checked += 1;
     }
     eprintln!("{checked} vectors agree");
+}
+
+/// Triples with repeated nodes give small node patterns. The local-closure
+/// cache once let patterns of different sizes share a key.
+#[test]
+fn repeated_nodes_agree() {
+    for src in [
+        "a & a",
+        "a <-> a",
+        "a ^ a",
+        "!a & a",
+        "(a & a) <-> (b & !b)",
+        "(a <-> b) & (a <-> !b)",
+        "(a & b) <-> (b & a)",
+    ] {
+        let f: Formula = src.parse().unwrap();
+        for k in 0..=2 {
+            agree(&f, config(k));
+            agree(&f, config(k).with_sharing(false));
+        }
+    }
 }

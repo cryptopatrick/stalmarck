@@ -59,7 +59,7 @@ fn shared_vectors() {
         // The reference solver agrees: refutes at exactly the recorded
         // depth, and never refutes a satisfiable vector.
         let solve = |k| {
-            Solver::new(Config { max_depth: k, ..Config::default() })
+            Solver::new(Config::default().with_max_depth(k))
                 .check_sat_triples(&triples)
                 .result
         };

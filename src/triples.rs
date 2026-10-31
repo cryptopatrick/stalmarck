@@ -24,22 +24,26 @@ impl Lit {
     ///
     /// # Panics
     /// If `node >= 2^31`.
+    #[must_use]
     pub fn new(node: u32, negated: bool) -> Lit {
         assert!(node < 1 << 31, "node id {node} out of range");
-        Lit(node << 1 | negated as u32)
+        Lit(node << 1 | u32::from(negated))
     }
 
     /// The literal's node.
+    #[must_use]
     pub fn node(self) -> u32 {
         self.0 >> 1
     }
 
     /// Whether the literal is negated.
+    #[must_use]
     pub fn is_negated(self) -> bool {
         self.0 & 1 == 1
     }
 
     /// The integer encoding `2·node + negated`.
+    #[must_use]
     pub fn code(self) -> u32 {
         self.0
     }
@@ -105,6 +109,11 @@ pub struct Triples {
 impl Triples {
     /// Decomposes `formula` (SPEC-D4). With `sharing`, identical
     /// subformulas, after normalization, share one triple (SPEC-D5).
+    ///
+    /// # Panics
+    ///
+    /// Panics if the decomposition needs 2³¹ nodes or more.
+    #[must_use]
     pub fn from_formula(formula: &Formula, sharing: bool) -> Triples {
         let mut b = Builder::new(sharing);
         let root = b.lit(formula);
@@ -113,6 +122,11 @@ impl Triples {
 
     /// Decomposes a CNF (`triple-format.md` §2): variable `i` is node `i`
     /// and is named `x<i>`.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the decomposition needs 2³¹ nodes or more.
+    #[must_use]
     pub fn from_cnf(cnf: &Cnf, sharing: bool) -> Triples {
         let mut b = Builder::new(sharing);
         for i in 1..=cnf.variables {
@@ -138,21 +152,25 @@ impl Triples {
     }
 
     /// Number of nodes, including ⊤.
+    #[must_use]
     pub fn node_count(&self) -> u32 {
         self.node_count
     }
 
     /// The input variables and their nodes, in node order.
+    #[must_use]
     pub fn variables(&self) -> &[(String, u32)] {
         &self.variables
     }
 
     /// The triples, in topological order.
+    #[must_use]
     pub fn triples(&self) -> &[Triple] {
         &self.triples
     }
 
     /// The literal standing for the whole formula.
+    #[must_use]
     pub fn root(&self) -> Lit {
         self.root
     }
@@ -177,6 +195,7 @@ impl Triples {
     }
 
     /// The `.tri` text form (`triple-format.md` §3).
+    #[must_use]
     pub fn to_text(&self) -> String {
         let mut s = format!(
             "stalmarck-triples 1\nnodes {}\nvars {}\n",
@@ -200,6 +219,11 @@ impl Triples {
 
     /// Reads the `.tri` text form, checking its validity rules
     /// (`triple-format.md` §3).
+    ///
+    /// # Errors
+    ///
+    /// Returns a [`ParseError`] if `src` is malformed or breaks a validity
+    /// rule.
     pub fn parse_text(src: &str) -> Result<Triples, ParseError> {
         let mut lines = src
             .lines()

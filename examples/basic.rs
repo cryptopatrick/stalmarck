@@ -9,8 +9,7 @@ fn main() {
         .implies(a & (b | c));
 
     for depth in 0..=1 {
-        let solver =
-            Solver::new(Config { max_depth: depth, ..Config::default() });
+        let solver = Solver::new(Config::default().with_max_depth(depth));
         let report = solver.prove(&f);
         let verdict = match &report.result {
             ProofResult::Valid => "valid".to_string(),

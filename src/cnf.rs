@@ -24,6 +24,10 @@ impl Cnf {
     /// let cnf = Cnf::parse_dimacs("p cnf 2 2\n1 -2 0\n2 0\n").unwrap();
     /// assert_eq!(cnf.clauses, vec![vec![1, -2], vec![2]]);
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// Returns a [`ParseError`] if `src` is not valid DIMACS CNF.
     pub fn parse_dimacs(src: &str) -> Result<Cnf, ParseError> {
         let mut header: Option<(u32, usize)> = None;
         let mut clauses = Vec::new();
@@ -86,6 +90,7 @@ impl Cnf {
     }
 
     /// DIMACS text, one clause per line.
+    #[must_use]
     pub fn to_dimacs(&self) -> String {
         let mut s =
             format!("p cnf {} {}\n", self.variables, self.clauses.len());
@@ -100,6 +105,7 @@ impl Cnf {
 
     /// Whether `assignment` satisfies every clause. `assignment[i - 1]` is
     /// the value of variable `i`.
+    #[must_use]
     pub fn evaluate(&self, assignment: &[bool]) -> bool {
         self.clauses.iter().all(|c| {
             c.iter()

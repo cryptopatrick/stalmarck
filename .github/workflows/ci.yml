@@ -76,7 +76,7 @@ jobs:
         with:
           components: clippy
       - run: cargo clippy --all-targets --features scryer -- -D warnings
-      - run: cargo test --release --features scryer --test scryer
+      - run: cargo test --release --features scryer --lib --test scryer
 
   docs:
     runs-on: ubuntu-latest

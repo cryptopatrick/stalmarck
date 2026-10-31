@@ -41,12 +41,12 @@ fn sha256_hex(bytes: &[u8]) -> String {
 /// within a fixed budget.
 fn ref_hardness(t: &Triples) -> Option<u32> {
     (0..=3).find(|&k| {
-        let s = Solver::new(Config {
-            max_depth: k,
-            max_branches: Some(200_000),
-            timeout: Some(Duration::from_secs(20)),
-            ..Config::default()
-        });
+        let s = Solver::new(
+            Config::default()
+                .with_max_depth(k)
+                .with_max_branches(200_000)
+                .with_timeout(Duration::from_secs(20)),
+        );
         s.check_sat_triples(t).result == SatResult::Unsat
     })
 }

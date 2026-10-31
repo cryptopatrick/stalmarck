@@ -7,6 +7,7 @@ use crate::formula::Formula;
 
 /// A syntax error with a 1-based position.
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct ParseError {
     /// Line of the offending token.
     pub line: usize,

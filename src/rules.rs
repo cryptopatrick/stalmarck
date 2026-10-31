@@ -43,7 +43,7 @@ pub(crate) fn local_closure(
         }
         let consistent = (0..k).all(|i| {
             (i + 1..k).all(|j| match known[i][j] {
-                Some(p) => (val(i) != val(j)) as u8 == p,
+                Some(p) => u8::from(val(i) != val(j)) == p,
                 None => true,
             })
         });
@@ -53,7 +53,7 @@ pub(crate) fn local_closure(
         any = true;
         for i in 0..k {
             for j in i + 1..k {
-                seen[i][j] |= 1 << (val(i) != val(j)) as u8;
+                seen[i][j] |= 1 << u8::from(val(i) != val(j));
             }
         }
     }

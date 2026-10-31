@@ -23,6 +23,12 @@ pub struct TooManyVariables(pub usize);
 /// let f: Formula = "a & !a".parse().unwrap();
 /// assert_eq!(oracle::satisfying_assignment(&f), Ok(None));
 /// ```
+///
+/// # Errors
+///
+/// Returns [`TooManyVariables`] if the formula has more than
+/// [`MAX_VARIABLES`] variables.
+#[allow(clippy::missing_panics_doc)] // Only variables of `formula` are looked up.
 pub fn satisfying_assignment(
     formula: &Formula,
 ) -> Result<Option<Model>, TooManyVariables> {
@@ -46,6 +52,11 @@ pub fn satisfying_assignment(
 
 /// Like [`satisfying_assignment`] for a CNF. The model names variable `i`
 /// `x<i>`.
+///
+/// # Errors
+///
+/// Returns [`TooManyVariables`] if the CNF has more than [`MAX_VARIABLES`]
+/// variables.
 pub fn satisfying_assignment_cnf(
     cnf: &Cnf,
 ) -> Result<Option<Model>, TooManyVariables> {

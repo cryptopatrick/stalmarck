@@ -8,7 +8,7 @@ use crate::formula::Formula;
 /// Bumped whenever any generator's output changes for the same inputs.
 pub const GENERATOR_VERSION: u32 = 1;
 
-/// SplitMix64.
+/// `SplitMix64`.
 struct Rng(u64);
 
 impl Rng {
@@ -32,12 +32,17 @@ fn x(i: u32) -> Formula {
 /// A random formula over `x1..=x<variables>` with nesting at most `depth`.
 /// Each binary node is one of `∧ ∨ → ↔ ⊕` with equal probability, and 1 in
 /// 7 inner nodes is a negation. About 1 in 25 leaves is a constant.
+///
+/// # Panics
+///
+/// Panics if `variables` is 0.
+#[must_use]
 pub fn random_formula(seed: u64, variables: u32, depth: u32) -> Formula {
     fn go(rng: &mut Rng, vars: u32, depth: u32) -> Formula {
         if depth == 0 || rng.below(5) == 0 {
             return match rng.below(25) {
                 0 => Formula::constant(rng.below(2) == 0),
-                _ => x(1 + rng.below(vars as u64) as u32),
+                _ => x(1 + rng.below(u64::from(vars)) as u32),
             };
         }
         if rng.below(7) == 0 {
@@ -59,6 +64,11 @@ pub fn random_formula(seed: u64, variables: u32, depth: u32) -> Formula {
 
 /// A uniform random k-CNF: each clause has `k` distinct variables with
 /// random signs.
+///
+/// # Panics
+///
+/// Panics unless `1 <= k <= variables`.
+#[must_use]
 pub fn random_kcnf(seed: u64, variables: u32, clauses: u32, k: u32) -> Cnf {
     assert!(k >= 1 && k <= variables, "need 1 <= k <= variables");
     let mut rng = Rng(seed);
@@ -66,7 +76,7 @@ pub fn random_kcnf(seed: u64, variables: u32, clauses: u32, k: u32) -> Cnf {
         .map(|_| {
             let mut c: Vec<i32> = Vec::new();
             while c.len() < k as usize {
-                let v = 1 + rng.below(variables as u64) as i32;
+                let v = 1 + rng.below(u64::from(variables)) as i32;
                 if !c.iter().any(|l| l.abs() == v) {
                     c.push(if rng.below(2) == 0 { v } else { -v });
                 }
@@ -80,6 +90,7 @@ pub fn random_kcnf(seed: u64, variables: u32, clauses: u32, k: u32) -> Cnf {
 /// The pigeonhole principle: `holes + 1` pigeons in `holes` holes.
 /// Unsatisfiable for every `holes >= 1`. Variable `p·holes + h + 1` means
 /// pigeon `p` sits in hole `h`.
+#[must_use]
 pub fn pigeonhole(holes: u32) -> Cnf {
     let var = |p: u32, h: u32| (p * holes + h + 1) as i32;
     let mut clauses: Vec<Vec<i32>> =
@@ -95,6 +106,11 @@ pub fn pigeonhole(holes: u32) -> Cnf {
 }
 
 /// `x1 ⊕ … ⊕ xn` (left fold) asserted equal to `parity`. Satisfiable.
+///
+/// # Panics
+///
+/// Panics if `n` is 0.
+#[must_use]
 pub fn parity(n: u32, parity: bool) -> Formula {
     assert!(n > 0, "need at least one variable");
     let chain = (2..=n).fold(x(1), |acc, i| acc ^ x(i));
@@ -104,6 +120,11 @@ pub fn parity(n: u32, parity: bool) -> Formula {
 /// The XOR chain `x1 ⊕ … ⊕ xn` (left fold) is asserted equal to the same
 /// chain in reverse order, but negated. Unsatisfiable for every `n`.
 /// Without sharing, refuting it needs reasoning across the two chains.
+///
+/// # Panics
+///
+/// Panics if `n` is 0.
+#[must_use]
 pub fn parity_mismatch(n: u32) -> Formula {
     assert!(n > 0, "need at least one variable");
     let forward = (2..=n).fold(x(1), |acc, i| acc ^ x(i));
@@ -113,6 +134,11 @@ pub fn parity_mismatch(n: u32) -> Formula {
 
 /// `x1 ∧ (x1 → x2) ∧ … ∧ (x_{n−1} → xn) ∧ ¬xn`. Unsatisfiable, refuted by
 /// 0-saturation alone, through a long chain of propagation.
+///
+/// # Panics
+///
+/// Panics if `n` is 0.
+#[must_use]
 pub fn implication_chain(n: u32) -> Formula {
     assert!(n > 0, "need at least one variable");
     let chain = (1..n).fold(x(1), |acc, i| acc & x(i).implies(x(i + 1)));

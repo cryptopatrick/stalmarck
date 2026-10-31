@@ -10,7 +10,7 @@ fn v(name: &str) -> Formula {
 }
 
 fn solver(depth: u32, sharing: bool) -> Solver {
-    Solver::new(Config { max_depth: depth, sharing, ..Config::default() })
+    Solver::new(Config::default().with_max_depth(depth).with_sharing(sharing))
 }
 
 /// Smallest depth at which `f` is proved valid.
@@ -83,11 +83,8 @@ fn branch_limit_gives_unknown() {
     let (a, b, c) = (v("a"), v("b"), v("c"));
     let reverse = ((a.clone() & b.clone()) | (a.clone() & c.clone()))
         .implies(a & (b | c));
-    let s = Solver::new(Config {
-        max_depth: 1,
-        max_branches: Some(0),
-        ..Config::default()
-    });
+    let s =
+        Solver::new(Config::default().with_max_depth(1).with_max_branches(0));
     assert_eq!(
         s.prove(&reverse).result,
         ProofResult::Unknown(Unknown::BranchLimit)
@@ -240,11 +237,11 @@ fn rollback_and_clone_strategies_agree() {
         let max_k = if seed % 10 == 0 { 3 } else { 2 };
         for k in 0..=max_k {
             let run = |branch_state| {
-                Solver::new(Config {
-                    max_depth: k,
-                    branch_state,
-                    ..Config::default()
-                })
+                Solver::new(
+                    Config::default()
+                        .with_max_depth(k)
+                        .with_branch_state(branch_state),
+                )
                 .check_sat(&f)
             };
             let (a, b) = (run(BranchState::Rollback), run(BranchState::Clone));
@@ -263,11 +260,9 @@ fn limits_leave_a_sound_relation() {
         let f = generate::random_formula(seed, 4, 6);
         let models = models(&f);
         for max in 0..6 {
-            let r = Solver::new(Config {
-                max_depth: 3,
-                max_branches: Some(max),
-                ..Config::default()
-            })
+            let r = Solver::new(
+                Config::default().with_max_depth(3).with_max_branches(max),
+            )
             .check_sat(&f);
             if let CanonicalRelation::Classes(classes) = &r.relation {
                 let t = Triples::from_formula(&f, true);
@@ -288,4 +283,15 @@ fn limits_leave_a_sound_relation() {
             }
         }
     }
+}
+
+#[test]
+fn public_types_are_thread_safe() {
+    fn check<T: Send + Sync>() {}
+    check::<Solver>();
+    check::<Config>();
+    check::<Formula>();
+    check::<Triples>();
+    check::<stalmarck::Report<SatResult>>();
+    check::<stalmarck::Report<ProofResult>>();
 }

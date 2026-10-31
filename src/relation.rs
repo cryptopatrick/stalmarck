@@ -26,7 +26,7 @@ impl std::fmt::Display for CanonicalRelation {
             CanonicalRelation::Classes(classes) => {
                 write!(f, "classes")?;
                 for &(m, neg) in classes {
-                    write!(f, " {}", 2 * m + neg as u32)?;
+                    write!(f, " {}", 2 * m + u32::from(neg))?;
                 }
                 Ok(())
             }
@@ -129,7 +129,7 @@ impl Relation {
         }
         let (ra, pa) = self.find(a.node());
         let (rb, pb) = self.find(b.node());
-        let p = (a.is_negated() != b.is_negated()) as u8;
+        let p = u8::from(a.is_negated() != b.is_negated());
         if ra == rb {
             if pa ^ pb != p {
                 self.contradiction = true;

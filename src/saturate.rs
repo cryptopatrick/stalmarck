@@ -10,6 +10,7 @@ use crate::triples::{Lit, Triple};
 
 /// Solver counters (SPEC-Z6, SPEC-K4).
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct Stats {
     /// Worklist pops.
     pub triples_processed: u64,
@@ -42,16 +43,19 @@ impl Stats {
     }
 
     /// `deductions_attempted − deductions_successful`.
+    #[must_use]
     pub fn redundant(&self) -> u64 {
         self.deductions_attempted - self.deductions_successful
     }
 }
 
-/// Which resource limit stopped saturation.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+/// What stopped saturation early.
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) enum Limit {
     Branches,
     Time,
+    /// The external branch executor failed.
+    Backend(String),
 }
 
 pub(crate) struct Budget {
@@ -81,7 +85,7 @@ pub(crate) trait ExternalBranches {
         value: bool,
         depth: u32,
         max_branches: Option<u64>,
-    ) -> BranchOutcome;
+    ) -> Result<BranchOutcome, String>;
 }
 
 /// What the rollback dilemma remembers about its first branch.
@@ -95,6 +99,7 @@ struct FirstBranch {
 /// How a dilemma keeps its parent state while it explores the branches
 /// (PRD §10, ADR-0004).
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum BranchState {
     /// One mutable state with an undo trail (the Track A baseline).
     #[default]
@@ -415,7 +420,8 @@ impl<'t> Engine<'t> {
                 .max_branches
                 .map(|m| m.saturating_sub(self.stats.dilemma_branches));
             let ext = self.external.as_deref_mut().expect("external executor");
-            let out = ext.branch(rel, v, value, j, max);
+            let out =
+                ext.branch(rel, v, value, j, max).map_err(Limit::Backend)?;
             self.stats.add(&out.stats);
             if out.limited {
                 return Err(Limit::Branches);

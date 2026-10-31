@@ -1,4 +1,22 @@
 ## Unreleased
+ - *Breaking*: `Config`, `Stats`, `Timing`, `Report`, `ParseError`, `Unknown`
+   and `BranchState` are `#[non_exhaustive]`, so later additions need no
+   breaking release. To migrate, replace
+   `Config { max_depth: 1, ..Config::default() }` with
+   `Config::default().with_max_depth(1)`, and add a `_` arm to matches on
+   `Unknown` and `BranchState`.
+ - `Config` gains `with_max_depth`, `with_sharing`, `with_max_branches`,
+   `with_timeout` and `with_branch_state`.
+ - *Breaking*: `Unknown` is no longer `Copy`. It gains
+   `BackendError(String)`: a Scryer failure now gives an unknown result
+   instead of a panic. `unknown_reason` in `result-v1` gains `backend_error`.
+ - `Unknown` implements `Display`. `SatResult` gains `is_sat`, `is_unsat` and
+   `model`; `ProofResult` gains `is_valid`, `is_invalid` and `counter_model`;
+   `Model` gains `len` and `is_empty`.
+ - *Breaking*: functions that return a value are `#[must_use]`, so ignoring
+   one is now a warning.
+ - All errors and panics are documented, and tests guarantee that the main
+   public types are `Send + Sync`.
  - `scryer`: much faster. Local closure is cached by pattern (median 1.8×),
    and a branch exports only its merged classes (up to 15×). Results and
    counters are unchanged (ADR-0009).

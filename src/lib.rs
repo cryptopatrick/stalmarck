@@ -33,7 +33,12 @@
 //! gives the same results and counters.
 
 #![forbid(unsafe_code)]
-#![warn(missing_docs)]
+#![warn(
+    missing_docs,
+    clippy::missing_errors_doc,
+    clippy::missing_panics_doc,
+    clippy::must_use_candidate
+)]
 
 mod cnf;
 mod formula;

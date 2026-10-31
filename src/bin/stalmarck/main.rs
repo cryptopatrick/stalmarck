@@ -274,12 +274,14 @@ fn verdict(o: &Options, triples: &Triples) -> Run {
     }
 }
 
-fn unknown_name(u: Unknown) -> &'static str {
+fn unknown_name(u: &Unknown) -> &'static str {
     match u {
         Unknown::DepthExhausted => "depth_exhausted",
         Unknown::BranchLimit => "branch_limit",
         Unknown::Timeout => "timeout",
         Unknown::ModelCheckFailed => "model_check_failed",
+        Unknown::BackendError(_) => "backend_error",
+        _ => "unknown",
     }
 }
 
@@ -376,8 +378,8 @@ fn main() -> ExitCode {
             opt(c.max_branches),
             opt(c.timeout.map(|t| t.as_millis() as u64)),
             match c.branch_state {
-                BranchState::Rollback => "null".to_string(),
                 BranchState::Clone => json_string("branch-state=clone"),
+                _ => "null".to_string(),
             }
         );
         let _ = write!(
@@ -391,7 +393,7 @@ fn main() -> ExitCode {
         );
         let _ = write!(j, "\"result\":{{\"verdict\":\"{}\"", run.verdict);
         if let Some(u) = run.unknown {
-            let _ = write!(j, ",\"unknown_reason\":\"{}\"", unknown_name(u));
+            let _ = write!(j, ",\"unknown_reason\":\"{}\"", unknown_name(&u));
         }
         if let Some(m) = &run.model {
             let fields: Vec<String> = m
@@ -442,7 +444,7 @@ fn main() -> ExitCode {
     } else {
         let mut line = format!("s {}", run.verdict);
         if let Some(u) = run.unknown {
-            let _ = write!(line, " ({})", unknown_name(u));
+            let _ = write!(line, " ({})", unknown_name(&u));
         }
         println!("{line}");
         if let Some(m) = &run.model {

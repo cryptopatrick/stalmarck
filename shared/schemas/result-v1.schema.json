@@ -57,7 +57,7 @@
       "properties": {
         "verdict": { "enum": ["SAT", "UNSAT", "VALID", "INVALID", "UNKNOWN", "ERROR"] },
         "unknown_reason": {
-          "enum": ["depth_exhausted", "branch_limit", "timeout", "memory_limit", "model_check_failed", null]
+          "enum": ["depth_exhausted", "branch_limit", "timeout", "memory_limit", "model_check_failed", "backend_error", null]
         },
         "model": {
           "type": ["object", "null"],

@@ -43,31 +43,37 @@ impl Formula {
     }
 
     /// The constant `value`.
+    #[must_use]
     pub fn constant(value: bool) -> Self {
         Formula::Const(value)
     }
 
     /// `self ∧ other`.
+    #[must_use]
     pub fn and(self, other: Formula) -> Self {
         Formula::And(Box::new(self), Box::new(other))
     }
 
     /// `self ∨ other`.
+    #[must_use]
     pub fn or(self, other: Formula) -> Self {
         Formula::Or(Box::new(self), Box::new(other))
     }
 
     /// `self → other`.
+    #[must_use]
     pub fn implies(self, other: Formula) -> Self {
         Formula::Implies(Box::new(self), Box::new(other))
     }
 
     /// `self ↔ other`.
+    #[must_use]
     pub fn iff(self, other: Formula) -> Self {
         Formula::Iff(Box::new(self), Box::new(other))
     }
 
     /// `self ⊕ other`.
+    #[must_use]
     pub fn xor(self, other: Formula) -> Self {
         Formula::Xor(Box::new(self), Box::new(other))
     }
@@ -88,6 +94,7 @@ impl Formula {
 
     /// The distinct variable names, in order of first occurrence
     /// (left to right).
+    #[must_use]
     pub fn variables(&self) -> Vec<&str> {
         let mut seen = HashSet::new();
         let mut out = Vec::new();
@@ -135,8 +142,9 @@ impl Formula {
                 todo.extend(l.map(|l| (l, false)));
                 continue;
             }
-            let start =
-                values.len() - l.is_some() as usize - r.is_some() as usize;
+            let start = values.len()
+                - usize::from(l.is_some())
+                - usize::from(r.is_some());
             let v = f(node, &values[start..]);
             values.truncate(start);
             values.push(v);
