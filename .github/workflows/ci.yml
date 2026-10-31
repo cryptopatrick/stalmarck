@@ -4,13 +4,21 @@ on:
   push:
     branches: [master]
   pull_request:
+  workflow_dispatch:
+  # Catches upstream breakage when nothing here has changed.
+  schedule: [cron: "17 3 * * *"]
+
+permissions:
+  contents: read
 
 env:
   CARGO_TERM_COLOR: always
+  RUSTFLAGS: -Dwarnings
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -19,16 +27,49 @@ jobs:
       - run: cargo fmt --all --check
       - run: cargo clippy --all-targets -- -D warnings
       - run: cargo test --all-targets
+      # `--all-targets` leaves out doctests.
+      - run: cargo test --doc
       # The shared test vectors must be exactly reproducible.
       - name: Regenerate test vectors and compare
         run: |
           cargo run --release --example gen_vectors -- "$RUNNER_TEMP/vectors"
           diff -r -x README.md shared/test-vectors "$RUNNER_TEMP/vectors"
 
+  beta:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@beta
+      - run: cargo test --all-targets
+
+  msrv:
+    # Must match `rust-version` in Cargo.toml.
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.88.0
+      - run: cargo check --all-targets
+      - run: cargo check --all-targets --features scryer
+
+  minimal-versions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+      - run: cargo generate-lockfile -Z minimal-versions
+      # Without `scryer`: the oldest versions of its dependencies, such as
+      # `wyz`, do not compile, and those bounds are not ours to fix.
+      - run: cargo check --locked --all-targets
+
   scryer:
     # Implementation B: Rust + Scryer Prolog (feature `scryer`), checked
     # against pure Rust on random formulas and the shared vectors.
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -37,8 +78,19 @@ jobs:
       - run: cargo clippy --all-targets --features scryer -- -D warnings
       - run: cargo test --release --features scryer --test scryer
 
+  docs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      RUSTDOCFLAGS: -Dwarnings
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo doc --no-deps --features scryer
+
   package:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -51,3 +103,8 @@ jobs:
             echo "::error::Forbidden files in crates.io package (listed above)"
             exit 1
           fi
+      # `cargo publish` only builds the package, so test what users get.
+      - name: Test the unpacked package
+        run: |
+          cargo package --allow-dirty
+          cargo test --manifest-path target/package/stalmarck-*/Cargo.toml

@@ -1,4 +1,10 @@
 ## Unreleased
+ - `scryer`: much faster. Local closure is cached by pattern (median 1.8×),
+   and a branch exports only its merged classes (up to 15×). Results and
+   counters are unchanged (ADR-0009).
+ - The published package now includes the shared test vectors and passes
+   its own tests. Previously `json_record_shape` failed there, and the
+   vector tests skipped silently.
 
 ## v0.3.0 - 2026-10-28
  - Implementation B, behind the new `scryer` feature:

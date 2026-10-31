@@ -27,8 +27,10 @@
 //! ```
 //!
 //! The procedure follows the project's formal specification
-//! (`docs/formal-specification.md` in the repository). This release is the
-//! sequential pure-Rust reference implementation.
+//! (`docs/formal-specification.md` in the repository). [`Solver`] is the
+//! sequential pure-Rust reference implementation. With the `scryer` feature,
+//! `scryer::ScryerSolver` runs Dilemma branches in embedded Scryer Prolog and
+//! gives the same results and counters.
 
 #![forbid(unsafe_code)]
 #![warn(missing_docs)]

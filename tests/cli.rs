@@ -1,7 +1,7 @@
 //! The `stalmarck` command-line tool, checked against the shared vectors.
 
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
 
 use serde_json::Value;
@@ -21,10 +21,7 @@ fn json(out: &Output) -> Value {
 fn vectors_through_the_cli() {
     let dir =
         PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("shared/test-vectors");
-    let Ok(manifest) = fs::read_to_string(dir.join("manifest.tsv")) else {
-        eprintln!("no shared/test-vectors: skipping");
-        return;
-    };
+    let manifest = fs::read_to_string(dir.join("manifest.tsv")).unwrap();
     for line in manifest.lines().filter(|l| !l.starts_with('#')) {
         let f: Vec<&str> = line.split('\t').collect();
         let (id, file, sha, expected, hardness) =
@@ -79,8 +76,7 @@ fn vectors_through_the_cli() {
 
 #[test]
 fn json_record_shape() {
-    let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    let tmp = dir.join("target/cli-test.prop");
+    let tmp = Path::new(env!("CARGO_TARGET_TMPDIR")).join("cli-test.prop");
     fs::write(&tmp, "p & !q").unwrap();
     let rec = json(&cli(&["--json", tmp.to_str().unwrap()]));
     assert_eq!(rec["schema_version"], 1);
@@ -123,9 +119,6 @@ fn json_record_shape() {
 fn branch_strategies_agree_in_the_cli() {
     let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("shared/test-vectors/unsat/pigeonhole-4.cnf");
-    if !dir.exists() {
-        return;
-    }
     let p = dir.to_str().unwrap();
     let a = json(&cli(&["--json", "--relation", "-k", "3", p]));
     let b = json(&cli(&[

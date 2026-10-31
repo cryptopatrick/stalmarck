@@ -20,10 +20,7 @@ fn sha256_hex(bytes: &[u8]) -> String {
 fn shared_vectors() {
     let dir =
         PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("shared/test-vectors");
-    let Ok(manifest) = fs::read_to_string(dir.join("manifest.tsv")) else {
-        eprintln!("no shared/test-vectors: skipping");
-        return;
-    };
+    let manifest = fs::read_to_string(dir.join("manifest.tsv")).unwrap();
     let mut checked = 0;
     for line in manifest.lines().filter(|l| !l.starts_with('#')) {
         let f: Vec<&str> = line.split('\t').collect();

@@ -81,10 +81,7 @@ fn branch_limits_agree() {
 fn shared_vectors_agree() {
     let dir = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("shared/test-vectors");
-    let Ok(manifest) = std::fs::read_to_string(dir.join("manifest.tsv"))
-    else {
-        return;
-    };
+    let manifest = std::fs::read_to_string(dir.join("manifest.tsv")).unwrap();
     let mut checked = 0;
     for line in manifest.lines().filter(|l| !l.starts_with('#')) {
         let file = line.split('\t').nth(5).unwrap();

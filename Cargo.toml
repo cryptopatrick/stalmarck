@@ -16,11 +16,13 @@ categories = ["algorithms", "mathematics"]
 license = "AGPL-3.0-only"
 autotests = false
 # Whitelist of files published to crates.io. Anything not listed here
-# (docs/, bend/, _*/ folders, benchmark tooling) is never packaged.
+# (docs/, bend/, _*/ folders, benchmark tooling) is never packaged. The
+# test vectors are included so that the packaged tests can run.
 include = [
     "/src/**/*",
     "/tests/**/*",
-    "/examples/basic.rs",
+    "/examples/*.rs",
+    "/shared/test-vectors/**/*",
     "/Cargo.toml",
     "/README.md",
     "/LICENSE",
